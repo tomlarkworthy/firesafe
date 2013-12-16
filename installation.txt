@@ -1,0 +1,42 @@
+insall node.js (TomL: my version is  v0.10.23)
+===============
+http://nodejs.org/
+press green button
+then:
+./configure
+make
+<<wait a long time>>
+sudo make install
+
+
+npm node.js package installer
+=============================
+
+DON'T INSTALL FROM APT-GET!!!
+sudo apt-get install npm
+
+DO THIS INSTEAD:
+git clone git://github.com/isaacs/npm.git
+cd npm/scripts
+chmod +x install.sh
+sudo ./install.sh
+
+
+
+npn bootsrap dependancies
+=========================
+in firesafe root of git repo
+npm install
+
+will read the package.json and install our project specific stuff
+we will add to this over time
+
+
+
+Task runner with Grunt
+======================
+http://gruntjs.com/getting-started
+
+npm install -g grunt-cli
+
+
