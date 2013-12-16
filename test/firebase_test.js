@@ -13,3 +13,25 @@ exports.testRootRef = function(test){
 		test.done();    
 	});
 };
+
+/**
+ * This connects to our projects sandbox Firebase and prints the root element
+ * 
+ */
+exports.testSandboxRootRef = function(test){
+    var firebase_io = require('../src/firebase_io.js');
+       
+    firebase_io.sandbox.once('value', function(snapshot) {
+		console.log('\nsandbox root value is ' + snapshot.val());
+		test.done();    
+	});
+};
+
+exports.testSandboxRules = function(test){
+    var firebase_io = require('../src/firebase_io.js');
+       
+    firebase_io.sandbox.child("rules").once('value', function(snapshot) {
+		console.log('\nsandbox rules value is ' + snapshot.val());
+		test.done();    
+	});
+};

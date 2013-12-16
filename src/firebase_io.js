@@ -7,17 +7,11 @@
 
 
 exports.Firebase = require('firebase');
+exports.sandbox = new exports.Firebase('https://firesafe-sandbox.firebaseio.com/');
 
 exports.hello = function(){
 	console.log("hello from firebase_io")
 };
 
-
-
-exports.get_rules = function(){
-	var rootRef = new Firebase('https://myprojectname.firebaseIO-demo.com/');
-	
-	console.log("hello from firebase_io")
-};
 
 
