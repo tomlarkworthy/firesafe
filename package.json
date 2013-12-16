@@ -1,9 +1,10 @@
 {
   "name": "firesafe",
-  "description": "Booking dojo app",
+  "description": "Keep your data secure",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "firebase": "1.0"
+    "firebase": "1.0",
+    "grunt-cli": "x"
   }
 }

@@ -25,18 +25,11 @@ sudo ./install.sh
 
 npn bootsrap dependancies
 =========================
-in firesafe root of git repo
+in firesafe root of git repo:
 npm install
 
 will read the package.json and install our project specific stuff
 we will add to this over time
 
-
-
-Task runner with Grunt
-======================
-http://gruntjs.com/getting-started
-
-npm install -g grunt-cli
 
 
