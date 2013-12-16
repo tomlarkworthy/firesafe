@@ -1,0 +1,7 @@
+This todo is our issue tracker
+
+0. keep .gitignore updated
+1. setup test driven development with node.js
+2. setup a test firebase which we can push and pull validation rules
+3. setup some tests!
+4. installation instructions for dev environment
