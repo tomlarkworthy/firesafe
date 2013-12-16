@@ -23,15 +23,26 @@ chmod +x install.sh
 sudo ./install.sh
 
 
+installing command line grunt
+================
+sudo npm install -g grunt-cli
 
-npn bootsrap dependancies
-=========================
+This is a system wide install (-g for global)
+it alows you to type "grunt" in command line
+
+install local project dependancies
+===================================
 in firesafe git root:
 
 npm install
 
-will read the package.json and install our project specific stuff
-we will additional dependancies over time
+will read the package.json and install our project specific stuff (e.g. firebase API)
+we will add additional dependancies over time
+
+
+
+
+
 
 
 
