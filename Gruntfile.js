@@ -4,6 +4,7 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 		
 		//see https://github.com/gruntjs/grunt-contrib-nodeunit
+		//only files ending in _test.js in directory and subdirectories of test are run
 		nodeunit: {
 			all: ['test/**/*_test.js']
 		}

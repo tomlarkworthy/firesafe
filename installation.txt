@@ -39,7 +39,10 @@ npm install
 will read the package.json and install our project specific stuff (e.g. firebase API)
 we will add additional dependancies over time
 
-
+run tests usin nodeunit
+========================
+(see https://github.com/caolan/nodeunit/)
+grunt nodeunit
 
 
 
