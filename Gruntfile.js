@@ -16,5 +16,15 @@ module.exports = function(grunt) {
 
 	// Default task(s).
 	grunt.registerTask('default', ['nodeunit']);
+	
+	//some basic tasks
+	grunt.registerTask('hello', function(){
+		console.log("hello");
+	});
+	
+	grunt.registerTask('hellofirebase', function(){
+		firebase = require("./src/firebase_io.js");
+		firebase.hello();
+	});
 
 };
