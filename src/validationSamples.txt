@@ -37,3 +37,35 @@
   }
 }
 
+Security Rule Expressions
+
+A Rule Expression is a string of text following ".read", ".write", or ".validate" in your security rules which is then evaluated by Firebase to make security decisions. For example:
+
+".read": "auth.id == $user && data.child('active').val() == true"
+The syntax is a subset of JavaScript's expression syntax with a few behavioral changes to increase clarity and correctness.
+
+Expression variables
+The following variables may be used within expressions:
+
+auth - Auth data for the client.
+data - A RulesDataSnapshot for the current data in Firebase at the location of this expression.
+newData - A RulesDataSnapshot for the new data being written to Firebase at the location of this expression.
+root - A RulesDataSnapshot for the current data in Firebase at the root of your Firebase.
+now - Current time in milliseconds since the unix epoch.
+path - Can be used within a $foo Rules block to refer to the actual name of the child being read or written.
+Expression Operators
+The following operators may be used within expressions:
+
+Equality: ==, ===, !=, !==
+Logical: &&, ||, !
+Concatenation: +
+Relational: <, <=, >, >=
+Arithmetic: +, -, *, /, %
+Property/Array Access: foo[3], foo['bar'], foo.bar
+In general, operators should behave identically to JavaScript. But there are a few subtle deviations to be aware of:
+
+== is treated as === (strict equality), meaning the left and right operands must have matching types (so "'3' == 3" will be false). Similarly, != is treated as !==.
+The logical operators require their operands to be necessarily boolean (so "auth.user != null && data.exists()" is valid, but "auth.user && data.exists()" is not since "auth.user" is not necessarily a boolean).
+The relational operators require 2 numbers or 2 strings, not a mix ("3 < 4" is valid, but "'3' < 4" is not).
+String Operations
+When dealing with strings in the rules (e.g. contained in your auth object or returned by val), we provide a few methods to help with validation and manipulation. See String for details.
