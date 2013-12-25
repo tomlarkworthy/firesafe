@@ -27,4 +27,9 @@ module.exports = function(grunt) {
 		firebase.hello();
 	});
 
+	grunt.registerTask('generateValidation', function(){
+		firebase = require("./src/firebase_io.js");
+		firebase.generateValidation();
+	});
+
 };

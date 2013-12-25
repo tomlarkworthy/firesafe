@@ -1,0 +1,39 @@
+{
+  "rules": {
+    "users": {
+      "$user": {
+        ".read": "$user == auth.username",
+        ".write": "$user == auth.username"
+      }
+    }
+  }
+}
+
+
+{
+  "rules": {
+    "users": {
+      "$user": {
+        ".read": "$user == auth.username",
+        ".write": "$user == auth.username",
+        ".validate": "newData.hasChildren(['name'])",
+        "name": {
+          ".validate": "newData.hasChildren(['first', 'last'])",
+          "first": {
+            ".validate": "newData.isString()"
+          },
+          "last": {
+            ".validate": "newData.isString()"
+          }
+        },
+        "age": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "about_me": {
+          ".validate": "newData.isString() && newData.val().length >= 10"
+        }
+      }
+    }
+  }
+}
+
