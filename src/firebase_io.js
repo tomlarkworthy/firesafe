@@ -7,12 +7,49 @@
 
 
 exports.Firebase = require('firebase');
+exports.Firebase = require('firebase');
 exports.sandbox = new exports.Firebase('https://firesafe-sandbox.firebaseio.com/');
+exports.FIREBASE_SECRET = "9MPlKqcjUPZtbvbUuqD8omoK7f4kRU7FDxBIz2fX";
 
 exports.hello = function(){
 	console.log("hello from firebase_io")
 };
 
+/**
+ * uploads the validation rules (representated as a string)
+ */
+exports.setValidationRules = function(rules_str){
+	//http://stackoverflow.com/questions/18840080/updating-firebase-security-rules-through-firebaseref-set
+	var $ = require('jquery-deferred');	
+	var def = $.Deferred();
+	var https = require('https');	
+	
+	//equivelent of curl -X PUT -d '{ "rules": { ".read": true } }' https://SampleChat.firebaseio-demo.com/.settings/rules.json?auth=FIREBASE_SECRET
+	var options = {
+	  hostname: 'firesafe-sandbox.firebaseio.com',
+	  port: 443,
+	  path: '/.settings/rules.json?auth='+exports.FIREBASE_SECRET,
+	  method: 'PUT'
+	};
+	
+	var req = https.request(options, function(res) {
+	  console.log("statusCode: ", res.statusCode);
+	  console.log("headers: ", res.headers);
+
+	  res.on('data', function(d) {
+		process.stdout.write(d);
+		def.resolve()
+	  });
+	});
+	req.end();
+
+	req.on('error', function(e) {
+	  console.error(e);
+	  def.resolve()
+	});
+	
+	return def;	 
+}
 
 
 exports.generateValidation = function() {
@@ -49,5 +86,4 @@ exports.generateValidation = function() {
 
 }
 
-// http://stackoverflow.com/questions/18840080/updating-firebase-security-rules-through-firebaseref-set
 

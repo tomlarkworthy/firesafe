@@ -35,3 +35,16 @@ exports.testSandboxRules = function(test){
 		test.done();    
 	});
 };
+
+/**
+ * This checks we can write rules to our Firebase
+ */
+exports.testWriteRules = function(test){
+    var firebase_io = require('../src/firebase_io.js');
+    var $ = require('jquery-deferred');
+       
+    $.when(firebase_io.setValidationRules('{ "rules": { ".read": true } }'))
+    .then(function(){
+		test.done();
+	});
+};
