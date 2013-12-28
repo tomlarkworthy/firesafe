@@ -51,11 +51,51 @@ exports.setValidationRules = function(rules_str){
 	  });
 	});
 	
-	req.write( rules_str , encoding='utf8' );
+	req.write( rules_str , encoding='utf8' );//write the actual rules in the request payload
 	req.end();
 
 	req.on('error', function(e) {
-	  console.error(e);
+	  console.error(e);//the whole request went bad which is not a good
+	  def.reject(e)
+	});
+	
+	return def;	 
+}
+
+/**
+ * retreives the validation rules (representated as a string)
+ * returns a deferred object, with the rules being the data payload
+ */
+exports.getValidationRules = function(rules_str){
+	console.log("\n getValidationRules")
+	//http://stackoverflow.com/questions/18840080/updating-firebase-security-rules-through-firebaseref-set
+	var $ = require('jquery-deferred');	
+	var def = $.Deferred();
+	var https = require('https');	
+	
+	//curl https://SampleChat.firebaseio-demo.com/.settings/rules.json?auth=FIREBASE_SECRET
+	var options = {
+	  hostname: 'firesafe-sandbox.firebaseio.com',
+	  port: 443,
+	  path: '/.settings/rules.json?auth='+exports.FIREBASE_SECRET,
+	  method: 'GET'
+	};
+	
+	var req = https.request(options, function(res) {
+	  console.log("statusCode: ", res.statusCode);
+	  console.log("headers: ", res.headers);
+
+	  res.on('data', function(d) {
+		var data = d.toString();
+		console.log("\n", data)
+		def.resolve(data); //so Firebase returned the rules ok
+	  });
+	});
+	
+	req.end();
+
+	req.on('error', function(e) {
+	  console.error(e);//the whole request went bad which is not a good
 	  def.reject(e)
 	});
 	
