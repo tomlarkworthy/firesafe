@@ -37,14 +37,35 @@ exports.testSandboxRules = function(test){
 };
 
 /**
- * This checks we can write rules to our Firebase
+ * Test valid rules can be written to Firebase
  */
-exports.testWriteRules = function(test){
+exports.testWriteRulesValid = function(test){
     var firebase_io = require('../src/firebase_io.js');
     var $ = require('jquery-deferred');
        
     $.when(firebase_io.setValidationRules('{ "rules": { ".read": true } }'))
     .then(function(){
+		test.ok(true, "these rules should have been accepted");
+		test.done();
+	},function(error){
+		test.ok(false, "these rules should not have been rejected");
+		test.done();
+	});
+};
+
+/**
+ * Test invalid rules are rejected by Firebase
+ */
+exports.testWriteRulesInvalid = function(test){
+    var firebase_io = require('../src/firebase_io.js');
+    var $ = require('jquery-deferred');
+       
+    $.when(firebase_io.setValidationRules('{ "rules": { ".read": true'))
+    .then(function(){
+		test.ok(false, "these rules should not have been accepted");
+		test.done();
+	},function(error){
+		test.ok(true, "these rules should have been rejected");
 		test.done();
 	});
 };

@@ -9,6 +9,8 @@
 exports.Firebase = require('firebase');
 exports.Firebase = require('firebase');
 exports.sandbox = new exports.Firebase('https://firesafe-sandbox.firebaseio.com/');
+
+/* TODO: Bit of a security issue here */
 exports.FIREBASE_SECRET = "9MPlKqcjUPZtbvbUuqD8omoK7f4kRU7FDxBIz2fX";
 
 exports.hello = function(){
@@ -17,8 +19,10 @@ exports.hello = function(){
 
 /**
  * uploads the validation rules (representated as a string)
+ * returns a deferred status, either error or ok
  */
 exports.setValidationRules = function(rules_str){
+	console.log("\n setValidationRules: ", rules_str)
 	//http://stackoverflow.com/questions/18840080/updating-firebase-security-rules-through-firebaseref-set
 	var $ = require('jquery-deferred');	
 	var def = $.Deferred();
@@ -38,14 +42,21 @@ exports.setValidationRules = function(rules_str){
 
 	  res.on('data', function(d) {
 		process.stdout.write(d);
-		def.resolve()
+		var data =  JSON.parse(d);
+		if (data.status == "ok"){
+			def.resolve(data.status)
+		}else{
+			def.reject(data.status)
+		}		
 	  });
 	});
+	
+	req.write( rules_str , encoding='utf8' );
 	req.end();
 
 	req.on('error', function(e) {
 	  console.error(e);
-	  def.resolve()
+	  def.reject(e)
 	});
 	
 	return def;	 
