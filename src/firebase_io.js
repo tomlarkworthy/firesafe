@@ -19,7 +19,7 @@ exports.hello = function(){
 
 /**
  * uploads the validation rules (representated as a string)
- * returns a deferred status, either error or ok
+ * returns a deferred object, the error handler is called if the upload is rejected (e.g. invalid rules)
  */
 exports.setValidationRules = function(rules_str){
 	console.log("\n setValidationRules: ", rules_str)

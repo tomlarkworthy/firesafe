@@ -23,15 +23,7 @@ exports.testSandboxRootRef = function(test){
        
     firebase_io.sandbox.once('value', function(snapshot) {
 		console.log('\nsandbox root value is ' + snapshot.val());
-		test.done();    
-	});
-};
-
-exports.testSandboxRules = function(test){
-    var firebase_io = require('../src/firebase_io.js');
-       
-    firebase_io.sandbox.child("rules").once('value', function(snapshot) {
-		console.log('\nsandbox rules value is ' + snapshot.val());
+		test.ok(true, "the API should at least returned");
 		test.done();    
 	});
 };
