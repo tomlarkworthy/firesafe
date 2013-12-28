@@ -42,11 +42,11 @@ exports.setValidationRules = function(rules_str){
 
 	  res.on('data', function(d) {
 		process.stdout.write(d);
-		var data =  JSON.parse(d);
+		var data =  JSON.parse(d); //check the return json's status that Firebase writes
 		if (data.status == "ok"){
-			def.resolve(data.status)
+			def.resolve(data.status); //so Firebase says it uploaded ok
 		}else{
-			def.reject(data.status)
+			def.reject(data.status); // the rules could be rejected for a variety of reasons
 		}		
 	  });
 	});
