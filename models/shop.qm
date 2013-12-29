@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model version="2.3.2">
+ <framework name="qpc"/>
+ <package name="package1" stereotype="0x00">
+  <class name="User" superclass="qpc::QHsm">
+   <attribute name="gold" type="" visibility="0x00" properties="0x00"/>
+   <attribute name="swords" type="" visibility="0x00" properties="0x00"/>
+   <statechart>
+    <initial target="../1">
+     <initial_glyph conn="8,2,5,0,5,2">
+      <action box="2,-1,28,2"/>
+     </initial_glyph>
+    </initial>
+    <state name="online">
+     <initial target="../1">
+      <initial_glyph conn="15,9,4,0,3">
+       <action box="-7,-2,6,2"/>
+      </initial_glyph>
+     </initial>
+     <state name="alive">
+      <tran trig="BUY_SWORD">
+       <choice target="../..">
+        <guard brief="gold &gt;= 100">guard1</guard>
+        <action brief="gold-=100; swords+=1"/>
+        <choice_glyph conn="34,16,4,1,6,-12">
+         <action box="1,0,9,7"/>
+        </choice_glyph>
+       </choice>
+       <tran_glyph conn="22,16,1,-1,12">
+        <action box="0,-2,11,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="9,12,13,14"/>
+     </state>
+     <state_glyph node="3,4,44,24"/>
+    </state>
+    <state_diagram size="50,30"/>
+   </statechart>
+  </class>
+ </package>
+</model>

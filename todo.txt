@@ -5,3 +5,4 @@ This todo is our issue tracker
 2. setup a test firebase which we can push and pull validation rules
 3. setup some tests!
 4. installation instructions for dev environment
+5. revoke and remove secret key from repo (in both firebase_io and katowulf subdir)
