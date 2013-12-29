@@ -1,0 +1,32 @@
+{
+  "rules": {
+	".read": true, //grant read access to all
+    "users": {
+      "$user":{
+		//only logged in user can change state
+		".write":"$user == auth.username",			
+		".validate":"
+			//buy sword
+			(data.child('gold').val() >= 10 && //guard states
+			 data.child('swords').val() <=1  && 
+			 data.child('state').val()=='online' &&
+				newData.child('gold').val()   == data.child('gold').val() -10 && 
+				newData.child('swords').val() == data.child('swords').val() + 1 && 
+				newData.child('state').val()  =='online') ||
+			//buy water
+			(data.child('gold').val() >= 4  && 
+			 data.child('water').val()  <=14 && 
+			 data.child('state').val()=='online' &&
+				newData.child('gold').val()   == data.child('gold').val() -4 && 
+				newData.child('water').val()  == data.child('water').val() + 6 && 
+				newData.child('state').val()  =='online') ||
+			//initial condition
+			(!data.child('state').exists() && //state machine not started
+			    newData.child('gold').val()   == 0 && 
+				newData.child('swords').val() == 0 && 
+				newData.child('state').val()  =='online')
+		",
+      }
+    }
+  }
+}
