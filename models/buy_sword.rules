@@ -1,3 +1,4 @@
+//I don't think we need to enforce types for this example, but isNumber(), isString(), isBoolean() are other possible rules to enforce
 {
   "rules": {
 	".read": true, //grant read access to all

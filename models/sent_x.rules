@@ -1,0 +1,35 @@
+{
+  "rules": {
+	".read": true, //grant read access to all
+    "users": {
+      "$user":{
+		//different users can write to the state, depending on the state, we push the write access to inside the validation rules
+		".write":"true",			
+		".validate":"
+			//initial condition, start in IDLE state
+			(!data.child('state').exists() && 
+				$user == auth.username && 
+				newData.child('state').val() =='IDLE') ||
+			//IDLE -> TX (SEND)
+			($user == auth.username &&
+				data.child('state').val() =='IDLE' &&
+				data.child('item').exists() &&
+				newData.child('state').val() =='TX' &&
+				newData.child('tx_loc').exists() && //we have to send to someone
+				newData.child('tx').val() == data.child('item').val() &&
+				newData.child('backup').val() == data.child('item').val() &&
+				newData.child('item').val() == null) ||
+			//IDLE -> RX (RECIEVE)
+			($user == auth.username &&
+				data.child('state').val() =='IDLE' &&
+				!data.child('item').exists() &&
+				newData.child('state').val() =='RX' &&
+				newData.child('rx_loc').exists() && //we have to recieve from someone
+				newData.child('rx').val() == root.child('users').child(newData.child('rx_loc').val()).child('tx')).val() //what we receive matches what was sent	
+				
+			//todo more entries			
+		",
+      }
+    }
+  }
+}
