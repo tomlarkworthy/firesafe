@@ -1,3 +1,28 @@
+/**
+ * A complete test of permissions and authentication
+ * The first test uploads the rules (based on API documentation: https://www.firebase.com/docs/security/security-rules.html)
+   "rules":{
+        "users":{
+            "$user":{
+                ".read" :"$user == auth.username",
+                ".write":"$user == auth.username",
+                "public":{
+                    ".read":true
+                }
+            }
+        }
+    }
+ *
+ * It then tests admin can ignore rules by loading test data
+ * Two people with different values in public and private areas
+ * users: {
+        bill:{private:1, public:2},
+        ted :{private:3, public:4}
+   }
+ *
+ * The test suite then tests bill can't read teds private data etc. for all classes of authenticated user & permission combinations
+ */
+
 
 /**
  * Send the hand crafted rules to Firebase, important this occurs first to setup test suite with the rules we want to test

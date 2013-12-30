@@ -5,6 +5,8 @@
  * double checks it goes in ok as well
  *
  * All functions return deferred objects as many of the methods are async
+ *
+ * read permissions also want the expected value in the read location
  */
 
 /**
