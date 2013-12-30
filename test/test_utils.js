@@ -41,7 +41,7 @@ exports.assert_can_read = function(who, where, expected, test){
     $.when(firebase_io.loginAs(who, false)).then(function(){
         //user is logged in
         firebase_io.sandbox.child(where).once('value', function(data){
-            test.equal(data.val(), expected);
+            test.deepEqual(data.val(), expected);
             def.resolve();
         }, function(error){
             test.ok(error==null, "the set should be error free but isn't");

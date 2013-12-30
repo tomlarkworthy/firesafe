@@ -1,5 +1,5 @@
 /**
- * Test suite for hand-written validation rules for safe exchange of an item *
+ * Test suite for hand-written validation rules for safe sending of an item from a sender to a reciever user
  */
 
 /**********************************************************************************************************************
@@ -186,6 +186,25 @@ exports.testReceiveOutOfOrderFail = function(test){
         }, test)).then(test.done);
 };
 
+
+/**
+ * Test a correctly formed sender transition cannot be transitioned by an incorrect user
+ * @param test
+ */
+exports.testSendWrongUserFail = function(test){
+    var test_utils = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_cant_write("receiver", "/users/sender", //wrong user
+        {
+            state:"TX",
+            item:null,
+            backup:"GOLD",
+            tx:"GOLD",
+            tx_loc:"receiver"
+        }, test)).then(test.done);
+};
+
 /**
  * Test a correctly formed sender transition works
  * @param test
@@ -277,3 +296,21 @@ exports.testReceiveTransition = function(test){
 /**********************************************************************************************************************
  * RECEIVER IS READY TO RECEIVE
  *********************************************************************************************************************/
+
+/**
+ * Test a correctly formed ack_rx transition works
+ * @param test
+ */
+exports.testAckTransition = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var firebase_io = require("../src/firebase_io.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_can_write("sender", "/users/receiver",
+        {
+            state:"ACK_RX",
+            ack:"sender",
+            rx:"GOLD",
+            rx_loc:"sender"
+        }, test)).then(test.done);
+};

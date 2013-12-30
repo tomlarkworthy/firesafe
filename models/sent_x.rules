@@ -1,11 +1,12 @@
+//The ability to not to clamp null values means the user can write extra data during transitions (padding). Dangerous. The system definately needs to know what variables are under control
+//"It's not a bug. Validate rules are only run for non-empty data new data." Andrew Lee (Firebase Developer) https://groups.google.com/forum/#!topic/firebase-talk/TbCK_zHyghg
 {
   "rules": {
 	".read": true, //grant read access to all
     "users": {
       "$user":{
-		//different users can write to the state, depending on the state, we push the write access to inside the validation rules
-		".write":"true",			
-		".validate":"
+		//if new data is empty then validation rules don't run which is a cause of problems
+		".write":"
 			//initial condition, start in IDLE state
 			(!data.child('state').exists() && 
 				$user == auth.username && 
@@ -15,12 +16,14 @@
 				newData.child('tx').val() == null &&
 				newData.child('rx_loc').val() == null &&
 				newData.child('rx').val() == null &&
-				newData.child('backup').val() == null
+				newData.child('backup').val() == null &&
+				newData.child('ack').val() == null
 				) ||
 			//IDLE -> TX (SEND)
 			($user == auth.username &&
 				data.child('state').val() =='IDLE' &&
 				data.child('item').exists() &&
+
 				newData.child('state').val() =='TX' &&
 				root.child('users').child(newData.child('tx_loc').val()).exists() && //we have to send to someone
 				newData.child('tx').val() == data.child('item').val() &&
@@ -28,12 +31,15 @@
 
 				newData.child('item').val() == null && //padding avoidance
 				newData.child('rx_loc').val() == null &&
-				newData.child('rx').val() == null
+				newData.child('ack').val() == null &&
+				newData.child('rx').val() == null &&
+                newData.child('ack').val() == null
 				) ||
 			//IDLE -> RX (RECIEVE)
 			($user == auth.username &&
 				data.child('state').val() =='IDLE' &&
 				!data.child('item').exists() &&
+
 				newData.child('state').val() =='RX' &&
 				$user == root.child('users').child(newData.child('rx_loc').val()).child('tx_loc').val() && //we have to recieve from someone who is sending to us
 				newData.child('rx').val() == root.child('users').child(newData.child('rx_loc').val()).child('tx').val() && //what we receive matches what was sent
@@ -41,10 +47,28 @@
 				newData.child('item').val() == null && //padding avoidance
                 newData.child('tx_loc').val() == null &&
                 newData.child('tx').val() == null &&
+                newData.child('backup').val() == null &&
+                newData.child('ack').val() == null
+				) ||
+			//RX -> ACK_RX NOTE: done by sender to indicate they have seen the RX transition
+            (auth.username == data.child('rx_loc').val() &&
+                data.child('state').val() =='RX' &&
+
+                newData.child('state').val() =='ACK_RX' &&
+                newData.child('ack').val() == auth.username &&
+
+
+                newData.child('rx_loc').val() == data.child('rx_loc').val() &&
+                newData.child('rx').val() == data.child('rx').val() &&
+                newData.child('item').val() == null &&
+                newData.child('tx_loc').val() == null &&
+                newData.child('tx').val() == null &&
                 newData.child('backup').val() == null
-				)
+                )
 		",//TODO more rules & states to come
       }
     }
   }
 }
+
+
