@@ -9,23 +9,40 @@
 			//initial condition, start in IDLE state
 			(!data.child('state').exists() && 
 				$user == auth.username && 
-				newData.child('state').val() =='IDLE') ||
+				newData.child('state').val() =='IDLE' &&
+				newData.child('item').val() == null &&
+				newData.child('tx_loc').val() == null &&
+				newData.child('tx').val() == null &&
+				newData.child('rx_loc').val() == null &&
+				newData.child('rx').val() == null &&
+				newData.child('backup').val() == null
+				) ||
 			//IDLE -> TX (SEND)
 			($user == auth.username &&
 				data.child('state').val() =='IDLE' &&
 				data.child('item').exists() &&
 				newData.child('state').val() =='TX' &&
-				newData.child('tx_loc').exists() && //we have to send to someone
+				root.child('users').child(newData.child('tx_loc').val()).exists() && //we have to send to someone
 				newData.child('tx').val() == data.child('item').val() &&
 				newData.child('backup').val() == data.child('item').val() &&
-				newData.child('item').val() == null) ||
+
+				newData.child('item').val() == null && //padding avoidance
+				newData.child('rx_loc').val() == null &&
+				newData.child('rx').val() == null
+				) ||
 			//IDLE -> RX (RECIEVE)
 			($user == auth.username &&
 				data.child('state').val() =='IDLE' &&
 				!data.child('item').exists() &&
 				newData.child('state').val() =='RX' &&
 				$user == root.child('users').child(newData.child('rx_loc').val()).child('tx_loc').val() && //we have to recieve from someone who is sending to us
-				newData.child('rx').val() == root.child('users').child(newData.child('rx_loc').val()).child('tx').val()) //what we receive matches what was sent				
+				newData.child('rx').val() == root.child('users').child(newData.child('rx_loc').val()).child('tx').val() && //what we receive matches what was sent
+
+				newData.child('item').val() == null && //padding avoidance
+                newData.child('tx_loc').val() == null &&
+                newData.child('tx').val() == null &&
+                newData.child('backup').val() == null
+				)
 		",//TODO more rules & states to come
       }
     }
