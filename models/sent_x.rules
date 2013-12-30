@@ -24,11 +24,9 @@
 				data.child('state').val() =='IDLE' &&
 				!data.child('item').exists() &&
 				newData.child('state').val() =='RX' &&
-				newData.child('rx_loc').exists() && //we have to recieve from someone
-				newData.child('rx').val() == root.child('users').child(newData.child('rx_loc').val()).child('tx')).val() //what we receive matches what was sent	
-				
-			//todo more entries			
-		",
+				$user == root.child('users').child(newData.child('rx_loc').val()).child('tx_loc').val() && //we have to recieve from someone who is sending to us
+				newData.child('rx').val() == root.child('users').child(newData.child('rx_loc').val()).child('tx').val()) //what we receive matches what was sent				
+		",//TODO more rules & states to come
       }
     }
   }
