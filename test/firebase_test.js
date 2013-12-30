@@ -10,7 +10,7 @@ exports.testReadRules = function(test){
     
     //note, Firebase reformats rule's white space, 
     //so we have to be carfull, the formatter might change unexpectadly Firebase end
-    var rules = '{ "rules": { ".read": "data.val() == '+random+'"} }' 
+    var rules = '{ "rules": { ".read": "data.val() == '+random+'"} }';
     
     //1st we write our randomly seeded rules
     $.when(firebase_io.setValidationRules(rules))
@@ -18,7 +18,7 @@ exports.testReadRules = function(test){
 		test.ok(true, "these rules should not have been accepted");
 		//once that is ok we read the current rules
 		$.when(firebase_io.getValidationRules()).then(function(data){
-			test.equals(data, rules) //check the rules match!
+			test.equals(data, rules); //check the rules match!
 			test.done();
 		}, function(error){
 			test.ok(false, "something when wrong with response to getValidationRules");

@@ -7,7 +7,6 @@
 
 
 exports.Firebase = require('firebase');
-exports.Firebase = require('firebase');
 exports.sandbox = new exports.Firebase('https://firesafe-sandbox.firebaseio.com/');
 
 /* TODO: Bit of a security issue here */
@@ -22,7 +21,7 @@ exports.hello = function(){
  * returns a deferred object, the error handler is called if the upload is rejected (e.g. invalid rules)
  */
 exports.setValidationRules = function(rules_str){
-	console.log("\n setValidationRules: ", rules_str)
+	console.log("\n setValidationRules: ", rules_str);
 	//http://stackoverflow.com/questions/18840080/updating-firebase-security-rules-through-firebaseref-set
 	var $ = require('jquery-deferred');	
 	var def = $.Deferred();
@@ -51,7 +50,7 @@ exports.setValidationRules = function(rules_str){
 	  });
 	});
 	
-	req.write( rules_str , encoding='utf8' );//write the actual rules in the request payload
+	req.write( rules_str , 'utf8' );//write the actual rules in the request payload
 	req.end();
 
 	req.on('error', function(e) {
@@ -60,14 +59,14 @@ exports.setValidationRules = function(rules_str){
 	});
 	
 	return def;	 
-}
+};
 
 /**
  * retreives the validation rules (representated as a string)
  * returns a deferred object, with the rules being the data payload
  */
 exports.getValidationRules = function(rules_str){
-	console.log("\n getValidationRules")
+	console.log("\n getValidationRules");
 	//http://stackoverflow.com/questions/18840080/updating-firebase-security-rules-through-firebaseref-set
 	var $ = require('jquery-deferred');	
 	var def = $.Deferred();
@@ -87,7 +86,7 @@ exports.getValidationRules = function(rules_str){
 
 	  res.on('data', function(d) {
 		var data = d.toString();
-		console.log("\n", data)
+		console.log("\n", data);
 		def.resolve(data); //so Firebase returned the rules ok
 	  });
 	});
@@ -100,7 +99,39 @@ exports.getValidationRules = function(rules_str){
 	});
 	
 	return def;	 
-}
+};
+
+exports.getAuthToken = function(username, admin){
+    var FBTokenGenMod = require('firebase-token-generator');
+    var FBTokenGenerator = new FBTokenGenMod(exports.FIREBASE_SECRET);
+    return FBTokenGenerator.createToken({ username: username }, {admin: admin});
+};
+
+exports.login = function(AUTH_TOKEN){
+    var $ = require('jquery-deferred');
+    var def = $.Deferred();
+
+    exports.sandbox.auth(AUTH_TOKEN, function(error) {
+        if(error) {
+            console.log("Login FAILED!");
+            def.reject()
+        } else {
+            console.log("Login Succeeded!");
+            def.resolve();
+        }
+    });
+    return def;
+};
+
+/**
+ * login to sandbox with the given username, and boolean option to be an admin
+ * @param username
+ * @param admin boolean, should the login be granted blanket read and write access??
+ * @return {*}
+ */
+exports.loginAs = function(username, admin){
+    return exports.login(exports.getAuthToken(username, admin));
+};
 
 // NOTE: the boolen expression produced is not
 // optimal (canonical). In particular, we can deduplicate some
@@ -243,6 +274,6 @@ exports.generateValidation = function() {
 	var result = spr.sprintf("%s || (%s)", part1, part2Collect);
 	console.log('result = ' + result);
 	// part1 || (part2 && part2b && part2c)
-}
+};
 
 
