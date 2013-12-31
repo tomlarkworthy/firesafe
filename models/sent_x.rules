@@ -64,6 +64,49 @@
                 newData.child('tx_loc').val() == null &&
                 newData.child('tx').val() == null &&
                 newData.child('backup').val() == null
+                ) ||
+            //TX -> ACK_TX NOTE: done by receiver to indicate they have seen the RX transition
+            (auth.username == data.child('tx_loc').val() &&
+                data.child('state').val() =='TX' &&
+
+                newData.child('state').val() =='ACK_TX' &&
+                newData.child('ack').val() == auth.username &&
+
+
+                newData.child('tx_loc').val() == data.child('tx_loc').val() &&
+                newData.child('tx').val() == data.child('tx').val() &&
+                newData.child('item').val() == null &&
+                newData.child('rx_loc').val() == null &&
+                newData.child('rx').val() == null &&
+                newData.child('backup').val() == data.child('backup').val()
+                ) ||
+            //ACK_TX -> IDLE
+            (auth.username == auth.username &&
+                data.child('state').val() =='ACK_TX' &&
+
+                newData.child('state').val() =='IDLE' &&
+
+                newData.child('ack').val() == null &&
+                newData.child('item').val() == null &&
+                newData.child('tx_loc').val() == null &&
+                newData.child('tx').val() == null &&
+                newData.child('rx_loc').val() == null &&
+                newData.child('rx').val() == null &&
+                newData.child('backup').val() == null
+                ) ||
+            //ACK_RX -> IDLE
+            (auth.username == auth.username &&
+                data.child('state').val() =='ACK_RX' &&
+
+                newData.child('state').val() =='IDLE' &&
+                newData.child('item').val() == data.child('rx').val() && //add item to inventory
+
+                newData.child('ack').val() == null &&
+                newData.child('tx_loc').val() == null &&
+                newData.child('tx').val() == null &&
+                newData.child('rx_loc').val() == null &&
+                newData.child('rx').val() == null &&
+                newData.child('backup').val() == null
                 )
 		",//TODO more rules & states to come
       }

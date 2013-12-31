@@ -298,12 +298,60 @@ exports.testReceiveTransition = function(test){
  *********************************************************************************************************************/
 
 /**
+ * Test a empty ack_rx fails
+ * (note "It's not a bug. Validate rules are only run for non-empty data new data."
+ * Andrew Lee (Firebase Developer)
+ * https://groups.google.com/forum/#!topic/firebase-talk/TbCK_zHyghg)
+ * @param test
+ */
+exports.testAckRXEmptyFail = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_cant_write("sender", "/users/receiver",
+        {
+        }, test)).then(test.done);
+};
+
+/**
+ * Test a incomplete formed ack_rx transition fails
+ * @param test
+ */
+exports.testAckRXIncompleteFail = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_cant_write("sender", "/users/receiver",
+        {
+            state:"ACK_RX",
+            ack:"sender",
+            rx:"GOLD"
+        }, test)).then(test.done);
+};
+
+/**
+ * Test a correctly formed ack_rx can't be spoofed by receiver
+ * @param test
+ */
+exports.testAckRXWrongUserFail = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
+        {
+            state:"ACK_RX",
+            ack:"sender",
+            rx:"GOLD",
+            rx_loc:"sender"
+        }, test)).then(test.done);
+};
+
+/**
  * Test a correctly formed ack_rx transition works
  * @param test
  */
-exports.testAckTransition = function(test){
+exports.testAckRXTransition = function(test){
     var test_utils  = require("../test/test_utils.js");
-    var firebase_io = require("../src/firebase_io.js");
     var $ = require('jquery-deferred');
 
     $.when(test_utils.assert_can_write("sender", "/users/receiver",
@@ -314,3 +362,64 @@ exports.testAckTransition = function(test){
             rx_loc:"sender"
         }, test)).then(test.done);
 };
+
+/**********************************************************************************************************************
+ * SENDER has ACK on receiver's data, next step if for receiver to ACK
+ *********************************************************************************************************************/
+
+/**
+ * Test a correctly formed ack_rx transition works
+ * @param test
+ */
+exports.testAckTXTransition = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_can_write("receiver", "/users/sender",
+        {
+            state:"ACK_TX",
+            ack:"receiver",
+            item:null,
+            tx:"GOLD",
+            tx_loc:"receiver",
+            backup:"GOLD"
+        }, test)).then(test.done);
+};
+
+/**********************************************************************************************************************
+ * RECEIVER has ACK on sender's data, transaction is complete! Now each can go to the IDLE state after receiving goods
+ *********************************************************************************************************************/
+
+/**
+ * Test we can now null the senders inventory, the trade is complete for the sender
+ * @param test
+ */
+exports.testCommitTxTransition = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_can_write("sender", "/users/sender",
+        {
+            state:"IDLE" //we have sent all our stuff
+        }, test)).then(test.done);
+};
+
+/**
+ * Test we can now add the item to the receiver's inventory, the trade is complete for the receiver
+ * @param test
+ */
+exports.testCommitRxTransition = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_can_write("receiver", "/users/receiver",
+        {
+            state:"IDLE",
+            item:"GOLD"
+        }, test)).then(test.done);
+};
+
+
+/**********************************************************************************************************************
+ * Trade complete!
+ *********************************************************************************************************************/
