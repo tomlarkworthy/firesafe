@@ -6,6 +6,7 @@
     "users": {
       "$user":{
 		//if new data is empty then validation rules don't run which is a cause of problems
+		//all rules pushed into .write (found in testing)
 		".write":"
 			//initial condition, start in IDLE state
 			(!data.child('state').exists() && 
@@ -65,9 +66,12 @@
                 newData.child('tx').val() == null &&
                 newData.child('backup').val() == null
                 ) ||
-            //TX -> ACK_TX NOTE: done by receiver to indicate they have seen the RX transition
+            //TX -> ACK_TX NOTE: done by receiver to indicate they have seen the TX transition
             (auth.username == data.child('tx_loc').val() &&
                 data.child('state').val() =='TX' &&
+
+                //check ACK_RX is present
+                root.child('users').child(newData.child('tx_loc').val()).child('ack').val() == $user && //tricky one to spot, found in out of order testing
 
                 newData.child('state').val() =='ACK_TX' &&
                 newData.child('ack').val() == auth.username &&
@@ -80,13 +84,13 @@
                 newData.child('rx').val() == null &&
                 newData.child('backup').val() == data.child('backup').val()
                 ) ||
-            //ACK_TX -> IDLE
-            (auth.username == auth.username &&
+            //ACK_TX -> IDLE, COMMIT_TX
+            ($user == auth.username &&
                 data.child('state').val() =='ACK_TX' &&
 
                 newData.child('state').val() =='IDLE' &&
 
-                newData.child('ack').val() == null &&
+                newData.child('ack').val() == data.child('ack').val() && //keep receivers ack around, bit dodgy if they quickly go on to another trade
                 newData.child('item').val() == null &&
                 newData.child('tx_loc').val() == null &&
                 newData.child('tx').val() == null &&
@@ -94,9 +98,12 @@
                 newData.child('rx').val() == null &&
                 newData.child('backup').val() == null
                 ) ||
-            //ACK_RX -> IDLE
-            (auth.username == auth.username &&
+            //ACK_RX -> IDLE, COMMIT_RX, normal state of affairs
+            ($user == auth.username &&
                 data.child('state').val() =='ACK_RX' &&
+
+                //check ACK_TX is no longer present (although they could have stated another trade...)
+                root.child('users').child(data.child('rx_loc').val()).child('ack').val() == $user && //tricky one to spot, found in out of order testing, not completely bullet proof
 
                 newData.child('state').val() =='IDLE' &&
                 newData.child('item').val() == data.child('rx').val() && //add item to inventory
@@ -108,7 +115,8 @@
                 newData.child('rx').val() == null &&
                 newData.child('backup').val() == null
                 )
-		",//TODO more rules & states to come
+            //there is potential for the reciever to get stuck after disconnect, we should allow the sender to finish the transaction for them
+		",
       }
     }
   }

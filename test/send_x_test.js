@@ -1,5 +1,5 @@
 /**
- * Test suite for hand-written validation rules for safe sending of an item from a sender to a reciever user
+ * Test suite for hand-written validation rules for safe sending of an item from a sender to a receiver user
  */
 
 /**********************************************************************************************************************
@@ -59,7 +59,7 @@ exports.testAdminWrite = function(test){
  * You should not be able to initialize the players file with anything other than an empty inventory
  * @param test
  */
-exports.testIllegalInitializationRejection = function(test){
+exports.testInitializationInvalidFail = function(test){
     var test_utils = require("../test/test_utils.js");
     var $ = require('jquery-deferred');
 
@@ -85,10 +85,10 @@ exports.testInitialization = function(test){
 };
 
 /**
- * You can't initialize an already initialized player
+ * You can't initialize twice
  * @param test
  */
-exports.testReInitializationFailure = function(test){
+exports.testReInitializationFail = function(test){
     var test_utils = require("../test/test_utils.js");
     var $ = require('jquery-deferred');
 
@@ -278,6 +278,23 @@ exports.testReceivePaddingItemFail = function(test){
 };
 
 /**
+ * Test a correctly formed ack_rx transition doesn't work before a receive
+ * @param test
+ */
+exports.testAckRXOutOfOrderFail = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_cant_write("sender", "/users/receiver",
+        {
+            state:"ACK_RX",
+            ack:"sender",
+            rx:"GOLD",
+            rx_loc:"sender"
+        }, test)).then(test.done);
+};
+
+/**
  * Test a correctly formed rx transition works
  * @param test
  */
@@ -346,6 +363,26 @@ exports.testAckRXWrongUserFail = function(test){
         }, test)).then(test.done);
 };
 
+
+/**
+ * Test a correctly formed ack_rx transition doesn't work before RX ACK
+ * @param test
+ */
+exports.testAckTXOutOfOrderFail = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_cant_write("receiver", "/users/sender",
+        {
+            state:"ACK_TX",
+            ack:"receiver",
+            item:null,
+            tx:"GOLD",
+            tx_loc:"receiver",
+            backup:"GOLD"
+        }, test)).then(test.done);
+};
+
 /**
  * Test a correctly formed ack_rx transition works
  * @param test
@@ -366,6 +403,36 @@ exports.testAckRXTransition = function(test){
 /**********************************************************************************************************************
  * SENDER has ACK on receiver's data, next step if for receiver to ACK
  *********************************************************************************************************************/
+
+
+/**
+ * Test we cant commit the Tx early
+ * @param test
+ */
+exports.testCommitTxOutOfOrderFail = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_cant_write("sender", "/users/sender",
+        {
+            state:"IDLE" //we have sent all our stuff
+        }, test)).then(test.done);
+};
+
+/**
+ * Test we cant commit the Rx early
+ * @param test
+ */
+exports.testCommitRxOutOfOrderFail = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
+        {
+            state:"IDLE",
+            item:"GOLD"
+        }, test)).then(test.done);
+};
 
 /**
  * Test a correctly formed ack_rx transition works
@@ -390,6 +457,7 @@ exports.testAckTXTransition = function(test){
  * RECEIVER has ACK on sender's data, transaction is complete! Now each can go to the IDLE state after receiving goods
  *********************************************************************************************************************/
 
+
 /**
  * Test we can now null the senders inventory, the trade is complete for the sender
  * @param test
@@ -400,7 +468,8 @@ exports.testCommitTxTransition = function(test){
 
     $.when(test_utils.assert_can_write("sender", "/users/sender",
         {
-            state:"IDLE" //we have sent all our stuff
+            state:"IDLE", //we have sent all our stuff
+            ack:"receiver"
         }, test)).then(test.done);
 };
 
@@ -418,6 +487,8 @@ exports.testCommitRxTransition = function(test){
             item:"GOLD"
         }, test)).then(test.done);
 };
+
+
 
 
 /**********************************************************************************************************************
