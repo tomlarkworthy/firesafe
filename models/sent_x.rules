@@ -84,8 +84,8 @@
                 newData.child('rx').val() == null &&
                 newData.child('backup').val() == data.child('backup').val()
                 ) ||
-            //ACK_TX -> IDLE, COMMIT_TX
-            ($user == auth.username &&
+            //ACK_TX -> IDLE, COMMIT_TX, EITHER party can finalize the transaction thus avoiding deadlocks
+            (($user == auth.username || auth.username == data.child('tx_loc').val()) &&
                 data.child('state').val() =='ACK_TX' &&
 
                 newData.child('state').val() =='IDLE' &&
@@ -98,8 +98,8 @@
                 newData.child('rx').val() == null &&
                 newData.child('backup').val() == null
                 ) ||
-            //ACK_RX -> IDLE, COMMIT_RX, normal state of affairs
-            ($user == auth.username &&
+            //ACK_RX -> IDLE, COMMIT_RX, EITHER party can finalize the transaction thus avoiding deadlocks
+            (($user == auth.username || auth.username == data.child('rx_loc').val())&&
                 data.child('state').val() =='ACK_RX' &&
 
                 //check ACK_TX is no longer present (although they could have stated another trade...)

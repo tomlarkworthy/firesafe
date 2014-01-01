@@ -559,11 +559,62 @@ exports.testTradeComplete0 = function(test){
 };
 
 /**********************************************************************************************************************
- * Alternative ending, lets check the receiver can finish the trade first
+ * Alternative ending, lets check the trade is completed with the different users doing the final transactions
  *********************************************************************************************************************/
 exports.testRestoreAlternativeEnding1Checkpoint = function(test){
     var test_utils  = require("../test/test_utils.js");
     var $ = require('jquery-deferred');
 
     $.when(test_utils.rollback(ACK_TX_ACK_RX_checkpoint, test)).then(test.done);
+};
+
+
+/**
+ * Test the Tx can be committed by the receiver instead of the sender
+ * @param test
+ */
+exports.testCommitTxTransition1 = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_can_write("receiver", "/users/sender",
+        {
+            state:"IDLE" //we have sent all our stuff
+        }, test)).then(test.done);
+};
+
+
+/**
+ * Test the Rx can commit by the sender instead of the receiver
+ * @param test
+ */
+exports.testCommitRxTransition1 = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_can_write("sender", "/users/receiver",
+        {
+            state:"IDLE",
+            item:"GOLD"
+        }, test)).then(test.done);
+};
+
+/**
+ * double check the receiver has the gold and the sender doesn't
+ * @param test
+ */
+exports.testTradeComplete1 = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_can_read("receiver", "/users",
+        {
+            sender:{
+                state:"IDLE"
+            },
+            receiver:{
+                state:"IDLE",
+                item:"GOLD"
+            }
+        }, test)).then(test.done);
 };
