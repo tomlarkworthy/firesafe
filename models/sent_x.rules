@@ -90,7 +90,7 @@
 
                 newData.child('state').val() =='IDLE' &&
 
-                newData.child('ack').val() == data.child('ack').val() && //keep receivers ack around, bit dodgy if they quickly go on to another trade
+                newData.child('ack').val() == null && //keep receivers ack around, bit dodgy if they quickly go on to another trade
                 newData.child('item').val() == null &&
                 newData.child('tx_loc').val() == null &&
                 newData.child('tx').val() == null &&
@@ -103,7 +103,8 @@
                 data.child('state').val() =='ACK_RX' &&
 
                 //check ACK_TX is no longer present (although they could have stated another trade...)
-                root.child('users').child(data.child('rx_loc').val()).child('ack').val() == $user && //tricky one to spot, found in out of order testing, not completely bullet proof
+                root.child('users').child(data.child('rx_loc').val()).child('state').val() != 'TX' &&
+                root.child('users').child(data.child('rx_loc').val()).child('state').val() != 'ACK_TX' &&
 
                 newData.child('state').val() =='IDLE' &&
                 newData.child('item').val() == data.child('rx').val() && //add item to inventory
@@ -115,7 +116,9 @@
                 newData.child('rx').val() == null &&
                 newData.child('backup').val() == null
                 )
-            //there is potential for the reciever to get stuck after disconnect, we should allow the sender to finish the transaction for them
+            //there is potential for the receiver to get stuck after disconnect, we should allow the sender to finish the transaction for them
+            //OR
+            //WE COMMIT the send on double ack. And commit the receive when (ACK_RX and not (TX OR ACK_TX) thus disallowing an early COMMIT_RX on first ACK_RX. It has to come after double ACK
 		",
       }
     }

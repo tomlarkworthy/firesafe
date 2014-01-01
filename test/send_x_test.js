@@ -1,8 +1,21 @@
 /**
  * Test suite for hand-written validation rules for safe sending of an item from a sender to a receiver user
+ *
+ * We do a normal trade flow, with attacks a we go, and store the firebase into certain checkpoints
+ * We then roll back to the state at the checkpoints to investigate alternative execution orders
  */
 
-/**********************************************************************************************************************
+
+//the important strictly ordered stages in executing a trade
+var IDLE_IDLE_checkpoint,
+    TX_IDLE_checkpoint,
+    TX_RX_checkpoint,
+    ACK_TX_RX_checkpoint,
+    ACK_TX_ACK_RX_checkpoint; //after double ack either party should be able to update their inventory, so ordering back to IDLE is indeterminate
+
+
+
+    /**********************************************************************************************************************
  * INITIAL RULES
  *********************************************************************************************************************
  * Send the hand crafted rules to Firebase, important this occurs first to setup test suite with the rules we want to test
@@ -101,6 +114,13 @@ exports.testReInitializationFail = function(test){
 /**********************************************************************************************************************
  * BOTH PLAYERS ARE INITIALIZED
  *********************************************************************************************************************/
+exports.testIDLE_IDLE_checkpoint = function(test){
+    var test_utils = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+    $.when(IDLE_IDLE_checkpoint = test_utils.checkpoint(test)).then(function(){
+        test.done();
+    });
+};
 
 /**
  * Tests the sender can't miss important information when sending
@@ -226,6 +246,13 @@ exports.testSendTransition = function(test){
 /**********************************************************************************************************************
  * SENDER IS READY TO SEND
  *********************************************************************************************************************/
+exports.testTX_IDLE_checkpoint = function(test){
+    var test_utils = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+    $.when(TX_IDLE_checkpoint = test_utils.checkpoint(test)).then(function(){
+        test.done();
+    });
+};
 
 /**
  * Test an object substitution fails on RX
@@ -313,6 +340,13 @@ exports.testReceiveTransition = function(test){
 /**********************************************************************************************************************
  * RECEIVER IS READY TO RECEIVE
  *********************************************************************************************************************/
+exports.testTX_RX_checkpoint = function(test){
+    var test_utils = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+    $.when(TX_RX_checkpoint = test_utils.checkpoint(test)).then(function(){
+        test.done();
+    });
+};
 
 /**
  * Test a empty ack_rx fails
@@ -403,7 +437,13 @@ exports.testAckRXTransition = function(test){
 /**********************************************************************************************************************
  * SENDER has ACK on receiver's data, next step if for receiver to ACK
  *********************************************************************************************************************/
-
+exports.testACK_TX_RX_checkpoint = function(test){
+    var test_utils = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+    $.when(ACK_TX_RX_checkpoint = test_utils.checkpoint(test)).then(function(){
+        test.done();
+    });
+};
 
 /**
  * Test we cant commit the Tx early
@@ -456,7 +496,13 @@ exports.testAckTXTransition = function(test){
 /**********************************************************************************************************************
  * RECEIVER has ACK on sender's data, transaction is complete! Now each can go to the IDLE state after receiving goods
  *********************************************************************************************************************/
-
+exports.testACK_TX_ACK_RX_checkpoint = function(test){
+    var test_utils = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+    $.when(ACK_TX_ACK_RX_checkpoint = test_utils.checkpoint(test)).then(function(){
+        test.done();
+    });
+};
 
 /**
  * Test we can now null the senders inventory, the trade is complete for the sender
@@ -468,8 +514,7 @@ exports.testCommitTxTransition = function(test){
 
     $.when(test_utils.assert_can_write("sender", "/users/sender",
         {
-            state:"IDLE", //we have sent all our stuff
-            ack:"receiver"
+            state:"IDLE" //we have sent all our stuff
         }, test)).then(test.done);
 };
 
@@ -489,8 +534,36 @@ exports.testCommitRxTransition = function(test){
 };
 
 
-
-
 /**********************************************************************************************************************
  * Trade complete!
  *********************************************************************************************************************/
+
+/**
+ * double check the receiver has the gold and the sender doesn't
+ * @param test
+ */
+exports.testTradeComplete0 = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_can_read("receiver", "/users",
+        {
+            sender:{
+                state:"IDLE"
+            },
+            receiver:{
+                state:"IDLE",
+                item:"GOLD"
+            }
+        }, test)).then(test.done);
+};
+
+/**********************************************************************************************************************
+ * Alternative ending, lets check the receiver can finish the trade first
+ *********************************************************************************************************************/
+exports.testRestoreAlternativeEnding1Checkpoint = function(test){
+    var test_utils  = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.rollback(ACK_TX_ACK_RX_checkpoint, test)).then(test.done);
+};
