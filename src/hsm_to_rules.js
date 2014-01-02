@@ -15,5 +15,5 @@ exports.convert = function(hsm){
 
     console.log("\n", hsm);
 
-    return parser.parser.parse(hsm, "top_block");
+    return parser.parser.parse(hsm, "block");
 };
