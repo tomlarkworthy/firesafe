@@ -12,7 +12,8 @@
 			(!data.child('state').exists() && 
 				$user == auth.username && 
 				newData.child('state').val() =='IDLE' &&
-				newData.child('item').val() == null &&
+
+				newData.child('item').val() == null && //by default, newData.child('item').val() == data.child('item').val() probably acheives the same thing and easier to machine generate
 				newData.child('tx_loc').val() == null &&
 				newData.child('tx').val() == null &&
 				newData.child('rx_loc').val() == null &&
