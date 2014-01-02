@@ -61,7 +61,6 @@
 
                 //check ACK_RX is present
                 root.child('users').child(newData.child('tx_loc').val()).child('state').val() == 'ACK_RX' && //tricky one to spot, found in out of order testing
-
                 newData.child('state').val() =='ACK_TX' &&
 
                 newData.child('tx_loc').val() == data.child('tx_loc').val() &&
@@ -97,9 +96,6 @@
                 newData.child('rx_loc').val() == null &&
                 newData.child('rx').val() == null
                 )
-            //there is potential for the receiver to get stuck after disconnect, we should allow the sender to finish the transaction for them
-            //OR
-            //WE COMMIT the send on double ack. And commit the receive when (ACK_RX and not (TX OR ACK_TX) thus disallowing an early COMMIT_RX on first ACK_RX. It has to come after double ACK
 		",
       }
     }
