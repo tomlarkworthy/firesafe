@@ -16,6 +16,7 @@
     "qunit": "0.5.18",
     "firebase-token-generator": "0.1.4",
     "jquery-deferred": "0.3.0",
-    "grunt-pandoc":"0.2.3"
+    "grunt-pandoc":"0.2.3",
+    "grunt-peg":"1.0.0"
   }
 }

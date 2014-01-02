@@ -1,0 +1,25 @@
+/* PEG.js grammar
+ * Representation of hierarchical state machines for generating validation rules
+ */
+top_block
+  = _? "{" _? '"rules"' _? ":" _? block _? "}" _?
+
+block
+  = "{" _? ( block_item _? ("," _? block_item _?)* )? "}"
+  / literal
+
+block_item
+  = identifier _? ":" _? block
+
+identifier
+  = "\"" ("$"/".")?[A-z]+ "\""
+  /      ("$"/".")?[A-z]+
+
+literal
+  = "true"
+  / "false"
+  / "\"" [^\"]* "\""
+  / "\'" [^\']* "\'"
+
+_ //a comment, or unexpected new line
+  = ("\t" / " " / "\n")*
