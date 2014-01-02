@@ -148,26 +148,7 @@ exports.testSendSwitchItemFail = function(test){
         {
             state:"TX",
             item:null,
-            backup:"GOLD",
             tx:"XXX",//don't own!
-            tx_loc:"receiver"
-        }, test)).then(test.done);
-};
-
-/**
- * Test the sender can't try and backup an item they do not own
- * @param test
- */
-exports.testSendSwitchBackupFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
-    $.when(test_utils.assert_cant_write("sender", "/users/sender",
-        {
-            state:"TX",
-            item:null,
-            backup:"xxx", //don't own!
-            tx:"GOLD",
             tx_loc:"receiver"
         }, test)).then(test.done);
 };
@@ -184,7 +165,6 @@ exports.testSendWrongAddressFail = function(test){
         {
             state:"TX",
             item:null,
-            backup:"GOLD",
             tx:"GOLD",
             tx_loc:"fsdfs" //not a user!
         }, test)).then(test.done);
@@ -219,7 +199,6 @@ exports.testSendWrongUserFail = function(test){
         {
             state:"TX",
             item:null,
-            backup:"GOLD",
             tx:"GOLD",
             tx_loc:"receiver"
         }, test)).then(test.done);
@@ -237,7 +216,6 @@ exports.testSendTransition = function(test){
         {
             state:"TX",
             item:null,
-            backup:"GOLD",
             tx:"GOLD",
             tx_loc:"receiver"
         }, test)).then(test.done);
@@ -315,7 +293,6 @@ exports.testAckRXOutOfOrderFail = function(test){
     $.when(test_utils.assert_cant_write("sender", "/users/receiver",
         {
             state:"ACK_RX",
-            ack:"sender",
             rx:"GOLD",
             rx_loc:"sender"
         }, test)).then(test.done);
@@ -375,7 +352,6 @@ exports.testAckRXIncompleteFail = function(test){
     $.when(test_utils.assert_cant_write("sender", "/users/receiver",
         {
             state:"ACK_RX",
-            ack:"sender",
             rx:"GOLD"
         }, test)).then(test.done);
 };
@@ -391,7 +367,6 @@ exports.testAckRXWrongUserFail = function(test){
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"ACK_RX",
-            ack:"sender",
             rx:"GOLD",
             rx_loc:"sender"
         }, test)).then(test.done);
@@ -409,11 +384,9 @@ exports.testAckTXOutOfOrderFail = function(test){
     $.when(test_utils.assert_cant_write("receiver", "/users/sender",
         {
             state:"ACK_TX",
-            ack:"receiver",
             item:null,
             tx:"GOLD",
-            tx_loc:"receiver",
-            backup:"GOLD"
+            tx_loc:"receiver"
         }, test)).then(test.done);
 };
 
@@ -428,7 +401,6 @@ exports.testAckRXTransition = function(test){
     $.when(test_utils.assert_can_write("sender", "/users/receiver",
         {
             state:"ACK_RX",
-            ack:"sender",
             rx:"GOLD",
             rx_loc:"sender"
         }, test)).then(test.done);
@@ -485,11 +457,9 @@ exports.testAckTXTransition = function(test){
     $.when(test_utils.assert_can_write("receiver", "/users/sender",
         {
             state:"ACK_TX",
-            ack:"receiver",
             item:null,
             tx:"GOLD",
-            tx_loc:"receiver",
-            backup:"GOLD"
+            tx_loc:"receiver"
         }, test)).then(test.done);
 };
 

@@ -7,7 +7,7 @@ module.exports = function(grunt) {
 		//only files ending in _test.js in directory and subdirectories of test are run
 		nodeunit: {
 			all: ['test/**/*_test.js'],
-            send_x: ['test/send_x_test.js'],
+            send_item: ['test/send_item_test.js'],
             firebase: ['test/firebase_test.js'],
             authentication: ['test/authentication_test.js']
 		}
