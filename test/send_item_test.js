@@ -26,7 +26,7 @@ exports.testWriteSendXRulesValid = function(test){
     var fs = require('fs');
 
     //load rules from file
-    var rules = fs.readFileSync("./models/sent_x.rules", "utf8");
+    var rules = fs.readFileSync("./models/send_item.rules", "utf8");
 
     $.when(firebase_io.setValidationRules(rules))
         .then(function(){
