@@ -1,4 +1,5 @@
 module.exports = function(grunt) {
+
 	// Project configuration.
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
@@ -10,15 +11,31 @@ module.exports = function(grunt) {
             send_item: ['test/send_item_test.js'],
             firebase: ['test/firebase_test.js'],
             authentication: ['test/authentication_test.js']
-		}
+		},
+        pandoc: {
+            toHtml: {
+                configs: {
+                    "publish"   : 'HTML'       // Publish File Format.
+                },
+                files: {
+                    "from": [
+                        "firesafe.md"
+                    ]
+                }
+            }
+        }
 
 	});
 
 	// Load the plugin that provides the "nodeunit" task.
 	grunt.loadNpmTasks('grunt-contrib-nodeunit');
+    grunt.loadNpmTasks('grunt-pandoc');
 
 	// Default task(s).
 	grunt.registerTask('default', ['nodeunit']);
+
+
+    grunt.registerTask('doc', ['pandoc']);
 	
 	//some basic tasks
 	grunt.registerTask('hello', function(){
