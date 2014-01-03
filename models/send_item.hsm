@@ -16,14 +16,14 @@
             "tx":{type:"string"},
             "rx_loc":{type:"string"},
             "rx":{type:"string"}
+        },".transitions_types":{
+            "self":"$user == auth.username",
+            "rx_loc":"auth.username == data.child('rx_loc').val()",
+            "tx_loc":"auth.username == data.child('tx_loc').val()",
+            "self_and_rx_loc":"$user == auth.username || auth.username == data.child('rx_loc').val()",
+            "self_and_tx_loc":"$user == auth.username || auth.username == data.child('tx_loc').val()"
         },".transitions":{
-            ".types":{
-                "self":"$user == auth.username",
-                "rx_loc":"auth.username == data.child('rx_loc').val()",
-                "tx_loc":"auth.username == data.child('tx_loc').val()",
-                "self_and_rx_loc":"$user == auth.username || auth.username == data.child('rx_loc').val()",
-                "self_and_tx_loc":"$user == auth.username || auth.username == data.child('tx_loc').val()"
-            },"INITIALIZE":{"from":"null", "to":"IDLE", type:"self",
+            "INITIALIZE":{"from":"null", "to":"IDLE", type:"self",
                     "effect":"
                         newData.child('item').val() == null &&
                         newData.child('tx').val() == null &&
