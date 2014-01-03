@@ -103,7 +103,7 @@ exports.block = function(block, prefix, types){
 exports.new_machine = function(){
     var machine = {
         states:{},
-        transitions:[],
+        transitions:{},
         variables:{},
         types:{},
         initial:null
@@ -157,11 +157,7 @@ exports.new_machine = function(){
 
     machine.process_variable = function(name, properties){
         //console.log("\nprocess_variable:", name, properties);
-        var initial = "null";
-        if(properties.initial){
-            initial = properties.initial.val
-        }
-        machine.variables[name] = {type: properties.type.val, initial:initial}
+        machine.variables[name] = {type: properties.type.val}
     };
 
     machine.process_transitions = function(transitions_parse_obj){
@@ -182,6 +178,7 @@ exports.new_machine = function(){
         var transition = {};
         transition.from = properties.from.val;
         transition.to = properties.to.val;
+        transition.type = properties.type.val;
         if(properties.guard){
             transition.guard = properties.guard.val
         }else{
@@ -193,8 +190,9 @@ exports.new_machine = function(){
             transition.effect = null
         }
 
+        machine.transitions[name] = transition;
+
         //console.log("\ntransition:", transition);
-        machine.transitions.push(transition);
     };
 
     machine.process_types = function(types_parse_obj){
@@ -205,9 +203,72 @@ exports.new_machine = function(){
         //console.log("\nmachine.types:", machine.types);
     };
 
+    /**
+     * a specific machine is encoded in a single ".write" clause in the validation rules
+     * this encodes all the different transitions, and the intitial condition
+     * @param prefix
+     */
     machine.gen_write = function(prefix){
+        var clauses = [];
 
+        for(var name in machine.transitions){
+            var transition = machine.transitions[name];
+
+            //first add a comment
+            var clause = prefix + "\t( //" + name + ": " + transition.from + " -> " + transition.to + ", " + transition.type
+
+            //add the authentication clause
+            clause += prefix +  "\t\t/*type  */("+machine.types[transition.type] +")";
+
+            //then add the from state requirement (if any, could be initial state)
+            if(transition.from != 'null'){
+                clause += prefix + "\t\t/*from*/   && data.child('state').val() == '" + transition.from +"'"
+            }else{
+                clause += prefix + "\t\t/*from*/   && data.child('state').val() == null"
+            }
+
+            //then add the to state requirement
+            if(transition.to != 'null'){
+                clause += prefix + "\t\t/*to    */ && newData.child('state').val() == '" + transition.to+"'"
+            }else{
+                clause += prefix + "\t\t/*to    */ && newData.child('state').val() == null"
+            }
+
+            //then add the guard logic (if any)
+            if(transition.guard != null){
+                clause += prefix + "\t\t/*guards*/ && (" + transition.guard;
+                clause += prefix + "\t\t)"
+            }
+
+            //then add the effect logic (if any)
+            if(transition.effect != null){
+                clause += prefix + "\t\t/*effects*/&& (" + transition.effect;
+                clause += prefix + "\t\t)"
+            }
+
+            //then add the fixings for variables
+            for(var variable in machine.variables){
+                //look to see whether this variable was already mentioned in the effects
+                //todo: should check whether its mentioned as a POST CONDITION
+                //we have a security leak here
+                if(transition.effect!= null && transition.effect.indexOf(variable) !== -1){
+                    //its mentioned in the effects, no need to lock
+                }else{
+                    clause += prefix + "\t\t && newData.child('" + variable + "').val() == data.child('"+variable +"').val() //lock for " + variable
+                }
+            }
+
+
+
+            clause += prefix + "\t)";
+
+            clauses.push(clause);
+        }
+
+        //or together all the transitions
+        return '"' + clauses.join("||") + prefix + '"'
     };
+
     return machine;
 
 };

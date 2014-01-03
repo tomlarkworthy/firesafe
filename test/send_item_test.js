@@ -25,8 +25,12 @@ exports.testWriteSendXRulesValid = function(test){
     var $ = require('jquery-deferred');
     var fs = require('fs');
 
-    //load rules from file
-    var rules = fs.readFileSync("./models/send_item.rules", "utf8");
+    //load rules as hsm file
+    var hsm_def = fs.readFileSync("./models/send_item.hsm", "utf8");
+
+    //convert into normal rules
+    var converter = require('../src/hsm_to_rules.js');
+    var rules = converter.convert(hsm_def);
 
     $.when(firebase_io.setValidationRules(rules))
         .then(function(){
