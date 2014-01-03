@@ -4,7 +4,12 @@
 
 Work in progress!
 
-Firebase supports transactions via the locking of single nodes (including all child nodes) in the data tree. 
+Firebase supports transactions via the locking of single nodes (including all child nodes) in the data tree.
+
+#Writing Firebase Rules is hard
+
+".validate" rule don't fire when newData is null, a cause of quite a data integrity problems
+
 
 # Motivation
 

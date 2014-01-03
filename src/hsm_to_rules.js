@@ -24,9 +24,16 @@ exports.convert = function(hsm){
     return code
 };
 
+//helpers
 exports.is_string = function(x){
     return x.substring != undefined;
 };
+
+exports.replace_prefix = function(x, new_prefix){
+    return x.replace(/\n\s*/gm, new_prefix);
+};
+
+
 
 /**
  * top down generator root
@@ -163,7 +170,7 @@ exports.new_machine = function(){
 
     machine.process_variable = function(name, properties){
         //console.log("\nprocess_variable:", name, properties);
-        machine.variables[name] = {type: properties.type.val}
+        machine.variables[name] = {}
     };
 
     machine.process_transitions = function(transitions_parse_obj){
@@ -207,7 +214,7 @@ exports.new_machine = function(){
 
     /**
      * a specific machine is encoded in a single ".write" clause in the validation rules
-     * this encodes all the different transitions, and the intitial condition
+     * this encodes all the different transitions, and the initial condition
      * @param prefix
      */
     machine.gen_write = function(prefix){
@@ -224,9 +231,9 @@ exports.new_machine = function(){
 
             //then add the from state requirement (if any, could be initial state)
             if(transition.from != 'null'){
-                clause += prefix + "\t\t/*from*/   && data.child('state').val() == '" + transition.from +"'"
+                clause += prefix + "\t\t/*from  */ && data.child('state').val() == '" + transition.from +"'"
             }else{
-                clause += prefix + "\t\t/*from*/   && data.child('state').val() == null"
+                clause += prefix + "\t\t/*from  */ && data.child('state').val() == null"
             }
 
             //then add the to state requirement
@@ -238,13 +245,13 @@ exports.new_machine = function(){
 
             //then add the guard logic (if any)
             if(transition.guard != null){
-                clause += prefix + "\t\t/*guards*/ && (" + transition.guard;
+                clause += prefix + "\t\t/*guards*/ && (" + exports.replace_prefix(transition.guard, prefix + "\t\t\t");
                 clause += prefix + "\t\t)"
             }
 
             //then add the effect logic (if any)
             if(transition.effect != null){
-                clause += prefix + "\t\t/*effects*/&& (" + transition.effect;
+                clause += prefix + "\t\t/*effect*/ && (" + exports.replace_prefix(transition.effect, prefix + "\t\t\t");
                 clause += prefix + "\t\t)"
             }
 
@@ -256,11 +263,9 @@ exports.new_machine = function(){
                 if(transition.effect!= null && transition.effect.indexOf(variable) !== -1){
                     //its mentioned in the effects, no need to lock
                 }else{
-                    clause += prefix + "\t\t && newData.child('" + variable + "').val() == data.child('"+variable +"').val() //lock for " + variable
+                    clause += prefix + "\t\t&& newData.child('" + variable + "').val() == data.child('"+variable +"').val() //lock for " + variable
                 }
             }
-
-
 
             clause += prefix + "\t)";
 
