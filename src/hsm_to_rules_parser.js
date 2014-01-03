@@ -244,14 +244,17 @@ exports.parser = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, bk1, bk2) {
-           result = {};
-           if (bk1 != undefined){
-               result[bk1.key] = bk1.val;
-           }
-           for (var i =0;i<bk2.length; i++){
-               result[bk2[i][2].key] = bk2[i][2].val;
-           }
-           return result;
+            var val = {};
+            if (bk1.key != null){
+                val[bk1.key] = bk1.val;
+            }
+            if (bk2 != null){
+                for (var i =0;i<bk2.length; i++){
+                    val[bk2[i][2].key] = bk2[i][2].val;
+                }
+            }
+            //console.log("\nval", val);
+            return {"!type":"OBJ", val:val};
         })(pos0, result0[3], result0[5]);
         }
         if (result0 === null) {
@@ -512,7 +515,7 @@ exports.parser = (function(){
           }
         }
         if (result0 !== null) {
-          result0 = (function(offset) { return true; })(pos0);
+          result0 = (function(offset) {return {"!type":"BOOL", val:true}; })(pos0);
         }
         if (result0 === null) {
           pos = pos0;
@@ -529,7 +532,7 @@ exports.parser = (function(){
             }
           }
           if (result0 !== null) {
-            result0 = (function(offset) { return false; })(pos0);
+            result0 = (function(offset) {return {"!type":"BOOL", val:false};})(pos0);
           }
           if (result0 === null) {
             pos = pos0;
@@ -594,7 +597,7 @@ exports.parser = (function(){
               pos = pos1;
             }
             if (result0 !== null) {
-              result0 = (function(offset, characters) { return characters.join(""); })(pos0, result0[1]);
+              result0 = (function(offset, characters) {return {"!type":"STR", val:characters.join("")}; })(pos0, result0[1]);
             }
             if (result0 === null) {
               pos = pos0;
@@ -659,7 +662,7 @@ exports.parser = (function(){
                 pos = pos1;
               }
               if (result0 !== null) {
-                result0 = (function(offset, characters) { return characters.join(""); })(pos0, result0[1]);
+                result0 = (function(offset, characters) {return {"!type":"STR", val:characters.join("")}; })(pos0, result0[1]);
               }
               if (result0 === null) {
                 pos = pos0;

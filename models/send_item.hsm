@@ -1,6 +1,7 @@
+//sending an item securely using a 2 phase commit, writting in candidate diagram language about nested heirachical state machines
 {
   "rules": {
-	".read": true, 
+	".read": true, //grant read access to all
     "users": {
       "$user":{
         ".states":{
@@ -10,8 +11,8 @@
             "ACK_TX":{},
             "ACK_RX":{}
         },".variables":{
-            "item":{type:"string"},
-            "tx_loc":{type:"string"},
+            "item":{type:"string", initial:"null"},
+            "tx_loc":{type:"string"},//default initial is null
             "tx":{type:"string"},
             "rx_loc":{type:"string"},
             "rx":{type:"string"}
@@ -64,3 +65,5 @@
     }
   }
 }
+
+

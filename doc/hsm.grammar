@@ -1,18 +1,24 @@
 /* PEG.js grammar
  * Representation of hierarchical state machines for generating validation rules
+ *
+ * special syntax is ".states", ".transitions", ".types", ".variables"
+ * we do not process ".write" if a machine is defined
  */
 
 block
   = _ "{" _  bk1:block_item? _ bk2:("," _ block_item _?)*  "}" _
 {
-   result = {};
-   if (bk1 != undefined){
-       result[bk1.key] = bk1.val;
-   }
-   for (var i =0;i<bk2.length; i++){
-       result[bk2[i][2].key] = bk2[i][2].val;
-   }
-   return result;
+    var val = {};
+    if (bk1.key != null){
+        val[bk1.key] = bk1.val;
+    }
+    if (bk2 != null){
+        for (var i =0;i<bk2.length; i++){
+            val[bk2[i][2].key] = bk2[i][2].val;
+        }
+    }
+    //console.log("\nval", val);
+    return {"!type":"OBJ", val:val};
 }
   / lit:literal { return lit; }
 
@@ -24,10 +30,10 @@ identifier
   /      prefix:("$"/"."/"")characters:[A-z]+       { return prefix+characters.join(""); }
 
 literal
-  = "true"    { return true; }
-  / "false"   { return false; }
-  / "\"" characters:[^\"]* "\""  { return characters.join(""); }
-  / "\'" characters:[^\']* "\'"  { return characters.join(""); }
+  = "true"    {return {"!type":"BOOL", val:true}; }
+  / "false"   {return {"!type":"BOOL", val:false};}
+  / "\"" characters:[^\"]* "\""  {return {"!type":"STR", val:characters.join("")}; }
+  / "\'" characters:[^\']* "\'"  {return {"!type":"STR", val:characters.join("")}; }
 
 _ //a comment, or unexpected new line
   = ("\t" / " " / "\n")* { return "";}
