@@ -16,7 +16,7 @@
             "RX":{},
             "ACK_TX":{},
             "ACK_RX":{}
-        },".transitions_types":{
+        },".transition_types":{
             "self":"$user == auth.username",
             "other":"auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val()",
             "either":"$user == auth.username || auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val()"
@@ -67,5 +67,3 @@
     }
   }
 }
-
-

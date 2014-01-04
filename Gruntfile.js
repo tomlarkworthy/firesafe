@@ -11,7 +11,8 @@ module.exports = function(grunt) {
             send_item: ['test/send_item_test.js'],
             firebase: ['test/firebase_test.js'],
             authentication: ['test/authentication_test.js'],
-            hsm_to_rules: ['test/hsm_to_rules_test.js']
+            hsm_to_rules: ['test/hsm_to_rules_test.js'],
+            exhaustive: ['test/exhaustive_hsm_test.js']
 		},pandoc: {
             toHtml: {
                 configs: {

@@ -78,9 +78,9 @@ exports.block = function(block, prefix, types){
             machine.process_transitions(block['val'][".transitions"]);
         }
 
-        if(block['val'][".transitions_types"]){
+        if(block['val'][".transition_types"]){
             if(machine == null) machine = exports.new_machine();
-            machine.process_types(block['val'][".transitions_types"])
+            machine.process_types(block['val'][".transition_types"])
         }
 
         for (var key in block['val']) {
@@ -90,7 +90,7 @@ exports.block = function(block, prefix, types){
             }else if(key === ".states"){
             }else if(key === ".variables"){ //ignore all the machine special syntax
             }else if(key === ".transitions"){
-            }else if(key === ".transitions_types"){
+            }else if(key === ".transition_types"){
             }else if(key === ".types"){
             }else{
                 lines.push('"'+key +'"'+':' + exports.block(block['val'][key], prefix + "\t", types));
