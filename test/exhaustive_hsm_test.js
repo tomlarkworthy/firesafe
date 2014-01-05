@@ -8,7 +8,7 @@
  * Thus we can use David's state machine as a controller for testing our implementation of the topology.
  */
 
-Statechart = require('../lib/statechart');
+Statechart = require('../lib/statechart.js');
 _ = require('underscore');
 
 
