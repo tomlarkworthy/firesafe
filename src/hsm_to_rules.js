@@ -146,7 +146,7 @@ exports.new_machine = function(){
      * sets up the state list recursively for the machine, and sets the initial state
      */
     machine.process_states = function(states_parse_obj, parent){
-        console.log("\nstates:", states_parse_obj);
+        //console.log("\nstates:", states_parse_obj);
 
         if(states_parse_obj.val[".init"]){
             var init = states_parse_obj.val[".init"].val;
@@ -169,7 +169,7 @@ exports.new_machine = function(){
         }
 
         if(parent == null){
-            console.log("\nmachine.states:", machine.states);
+            //console.log("\nmachine.states:", machine.states);
         }
     };
 
@@ -178,7 +178,7 @@ exports.new_machine = function(){
         for(var name in variables_parse_obj.val){
             machine.process_variable(name, variables_parse_obj.val[name].val);
         }
-        console.log("\nmachine.variables:", machine.variables);
+        //console.log("\nmachine.variables:", machine.variables);
     };
 
     machine.process_variable = function(name, properties){
@@ -191,9 +191,9 @@ exports.new_machine = function(){
         for(var name in transitions_parse_obj.val){
             machine.process_transition(name, transitions_parse_obj.val[name].val);
         }
-        console.log("\ntransitions:", machine.transitions);
+        //console.log("\ntransitions:", machine.transitions);
         machine.signals = exports.sortObject(machine.signals);
-        console.log("\signals:", machine.signals);
+        //console.log("\signals:", machine.signals);
     };
 
     machine.process_transition = function(name, properties){
@@ -256,7 +256,6 @@ exports.new_machine = function(){
         for(var t_id in machine.transitions){
             var transition = machine.transitions[t_id];
             if(transition.from == null){ //its an init transition
-                console.log("\nflatten init", transition)
                 var target = machine.resolve_target(transition.to);
                 flat_transitions[uid] = {
                     from:null,
@@ -310,7 +309,7 @@ exports.new_machine = function(){
             }
         }
 
-        console.log("\nflat_transitions", flat_transitions)
+        //console.log("\nflat_transitions", flat_transitions)
         machine.transitions = flat_transitions;
     };
 
