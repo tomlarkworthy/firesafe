@@ -7,14 +7,8 @@
 
 
 exports.Firebase = require('firebase');
-exports.sandbox = new exports.Firebase('https://firesafe-sandbox.firebaseio.com/');
-
-/* TODO: Bit of a security issue here */
-exports.FIREBASE_SECRET = "9MPlKqcjUPZtbvbUuqD8omoK7f4kRU7FDxBIz2fX";
-
-exports.hello = function(){
-	console.log("hello from firebase_io")
-};
+exports.sandbox = new exports.Firebase(require('../properties.js').FIREBASE_LOCATION);
+exports.FIREBASE_SECRET = require('../properties.js').FIREBASE_SECRET;
 
 /**
  * uploads the validation rules (representated as a string)

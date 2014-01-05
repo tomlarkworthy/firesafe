@@ -1,5 +1,4 @@
 module.exports = function(grunt) {
-
 	// Project configuration.
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
@@ -48,23 +47,6 @@ module.exports = function(grunt) {
     // generate parsers
     grunt.registerTask('parser', ['peg']);
 
-
     grunt.registerTask('test_parser',     ['peg', "nodeunit:hsm_to_rules"]);
     grunt.registerTask('test_exhaustive', ['peg', "nodeunit:exhaustive"]);
-
-	//some basic tasks
-	grunt.registerTask('hello', function(){
-		console.log("hello");
-	});
-	
-	grunt.registerTask('hellofirebase', function(){
-		firebase = require("./src/firebase_io.js");
-		firebase.hello();
-	});
-
-	grunt.registerTask('generateValidation', function(){
-		firebase = require("./src/firebase_io.js");
-		firebase.generateValidation();
-	});
-
 };
