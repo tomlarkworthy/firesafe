@@ -9,6 +9,7 @@
 exports.Firebase = require('firebase');
 exports.sandbox = new exports.Firebase(require('../properties.js').FIREBASE_LOCATION);
 exports.FIREBASE_SECRET = require('../properties.js').FIREBASE_SECRET;
+exports.FIREBASE_LOCATION = require('../properties.js').FIREBASE_LOCATION;
 
 /**
  * uploads the validation rules (representated as a string)
@@ -23,7 +24,7 @@ exports.setValidationRules = function(rules_str){
 	
 	//equivelent of curl -X PUT -d '{ "rules": { ".read": true } }' https://SampleChat.firebaseio-demo.com/.settings/rules.json?auth=FIREBASE_SECRET
 	var options = {
-	  hostname: 'firesafe-sandbox.firebaseio.com',
+	  hostname: exports.FIREBASE_LOCATION,
 	  port: 443,
 	  path: '/.settings/rules.json?auth='+exports.FIREBASE_SECRET,
 	  method: 'PUT'
@@ -68,7 +69,7 @@ exports.getValidationRules = function(rules_str){
 	
 	//curl https://SampleChat.firebaseio-demo.com/.settings/rules.json?auth=FIREBASE_SECRET
 	var options = {
-	  hostname: 'firesafe-sandbox.firebaseio.com',
+	  hostname: exports.FIREBASE_LOCATION,
 	  port: 443,
 	  path: '/.settings/rules.json?auth='+exports.FIREBASE_SECRET,
 	  method: 'GET'
