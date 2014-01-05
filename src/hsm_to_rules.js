@@ -146,7 +146,7 @@ exports.new_machine = function(){
      * sets up the state list recursively for the machine, and sets the initial state
      */
     machine.process_states = function(states_parse_obj, parent){
-        //console.log("\nstates:", states_parse_obj);
+        console.log("\nstates:", states_parse_obj);
 
         if(states_parse_obj.val[".init"]){
             var init = states_parse_obj.val[".init"].val;
@@ -163,12 +163,14 @@ exports.new_machine = function(){
 
             if(name == ".init"){
             }else{
-
                 machine.states[name] = {parent:parent, leaf:true};
                 machine.process_states(states_parse_obj.val[name], name)
             }
         }
-        //console.log("\nmachine.states:", machine.states);
+
+        if(parent == null){
+            console.log("\nmachine.states:", machine.states);
+        }
     };
 
     machine.process_variables = function(variables_parse_obj){
@@ -176,7 +178,7 @@ exports.new_machine = function(){
         for(var name in variables_parse_obj.val){
             machine.process_variable(name, variables_parse_obj.val[name].val);
         }
-        //console.log("\nmachine.variables:", machine.variables);
+        console.log("\nmachine.variables:", machine.variables);
     };
 
     machine.process_variable = function(name, properties){
@@ -189,9 +191,9 @@ exports.new_machine = function(){
         for(var name in transitions_parse_obj.val){
             machine.process_transition(name, transitions_parse_obj.val[name].val);
         }
-        //console.log("\ntransitions:", machine.transitions);
+        console.log("\ntransitions:", machine.transitions);
         machine.signals = exports.sortObject(machine.signals);
-        //console.log("\signals:", machine.signals);
+        console.log("\signals:", machine.signals);
     };
 
     machine.process_transition = function(name, properties){
@@ -254,6 +256,7 @@ exports.new_machine = function(){
         for(var t_id in machine.transitions){
             var transition = machine.transitions[t_id];
             if(transition.from == null){ //its an init transition
+                console.log("\nflatten init", transition)
                 var target = machine.resolve_target(transition.to);
                 flat_transitions[uid] = {
                     from:null,
@@ -267,30 +270,47 @@ exports.new_machine = function(){
             }
         }
 
-
-
-        for(var state_name in machine.states){
-            if(machine.states[state_name].leaf){
+        for(var from in machine.states){
+            if(machine.states[from].leaf){
                 //we have ancestor transitions that are inherited by this leaf node
                 for(var signal in machine.signals){
-                    var transition = machine.resolve_signal(signal, state_name);
-                    if(transition == null) continue;
+                    var transitions = machine.resolve_signals(signal, from);
+                    for(t_id in transitions){
+                        var transition = transitions[t_id];
+                        var target = machine.resolve_target(transition.to);
+
+                        flat_transitions[uid] = {
+                            from:from,
+                            to:target,
+                            type:transition.type,
+                            signal:signal,
+                            guard:transition.guard,
+                            effect:transition.effect
+                        };
+                        uid += 1;
+                    }
+                }
+                //check for null signal too
+                var transitions = machine.resolve_signals(null, from);
+                for(t_id in transitions){
+                    var transition = transitions[t_id];
                     var target = machine.resolve_target(transition.to);
 
                     flat_transitions[uid] = {
-                        from:state_name,
+                        from:from,
                         to:target,
                         type:transition.type,
-                        signal:signal,
+                        signal:null,
                         guard:transition.guard,
                         effect:transition.effect
                     };
                     uid += 1;
                 }
+
             }
         }
 
-        //console.log("\nflat_transitions", flat_transitions)
+        console.log("\nflat_transitions", flat_transitions)
         machine.transitions = flat_transitions;
     };
 
@@ -310,23 +330,31 @@ exports.new_machine = function(){
     };
 
     /**
-     * returns a transition, or null, that leaves from the state, or one of its ancestors
+     * returns a set of transitions.
+     * Finds the super transitions with the provided signal, leaving the provided state, (or one of it's ancestors)
      */
-    machine.resolve_signal = function(signal, state){
+    machine.resolve_signals = function(signal, state){
+        var matches = [];
+        //console.log("\n resolve signal:", signal, "on:", state);
         var current = state;
 
         while(current != null){
             //look for transition leaving current with right signal
             for(var t_id in machine.transitions){
                 if(machine.transitions[t_id].signal === signal && machine.transitions[t_id].from === current){
-                    return machine.transitions[t_id];
+                    matches.push(machine.transitions[t_id]);
                 }
             }
-            //none matches, so go up hierarchy
+
+            if(matches.length > 0){
+                return matches;
+            }
+
+            //no matches, so go up hierarchy
             current = machine.states[current].parent;
         }
 
-        return null;
+        return [];
     };
 
     /**

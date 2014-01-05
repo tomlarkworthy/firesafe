@@ -597,7 +597,7 @@ exports.parser = (function(){
               pos = pos1;
             }
             if (result0 !== null) {
-              result0 = (function(offset, characters) {return {"!type":"STR", val:characters.join("")}; })(pos0, result0[1]);
+              result0 = (function(offset, characters) {var obj = {"!type":"STR", val:characters.join("")}; if(obj.val === "null") obj.val = null; return obj;})(pos0, result0[1]);
             }
             if (result0 === null) {
               pos = pos0;
@@ -662,7 +662,7 @@ exports.parser = (function(){
                 pos = pos1;
               }
               if (result0 !== null) {
-                result0 = (function(offset, characters) {return {"!type":"STR", val:characters.join("")}; })(pos0, result0[1]);
+                result0 = (function(offset, characters) {var obj = {"!type":"STR", val:characters.join("")}; if(obj.val === "null") obj.val = null; return obj;})(pos0, result0[1]);
               }
               if (result0 === null) {
                 pos = pos0;
