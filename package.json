@@ -25,12 +25,12 @@
       }
   ],
   "engines": {
-      "node": "0.8"
+      "node": ">= 0.8"
   },
   "scripts": {
       "test": "grunt test"
   },
-    
+  "main": "./src/firesafe_main.js",
   "devDependencies": {
     "firebase": "1.0",
     "firebase-token-generator": "0.1.4",
@@ -48,6 +48,6 @@
   },
   "preferGlobal": "true",
   "bin": {
-      "firesafe" : "src/firesafe.js"
+      "firesafe" : "src/firesafe-cli.js"
   }
 }

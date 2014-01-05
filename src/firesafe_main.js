@@ -1,0 +1,1 @@
+exports.hsm_to_rules = require("./hsm_to_rules.js").convert;

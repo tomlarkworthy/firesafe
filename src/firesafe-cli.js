@@ -19,7 +19,26 @@ tasks.help = function(){
 
 if(argv[0] === "--help" || argv[0] === "-h" || argv.length != 2) {
     tasks.help();
+}else{
+    var src_file = userArgs[0];
+    var dst_file = userArgs[1];
+
+    var fs = require('fs');
+    var firesafe = require('./firesafe_main.js');
+
+    //load hsm rules from file
+    try{
+        var hsm_def = fs.readFileSync(src_file, "utf8");
+
+        //transform hsm into rules
+        var rules = firesafe.hsm_to_rules(hsm_def);
+
+        //write the rules to the rule file
+        fs.writeFileSync(dst_file, rules);
+    }catch(e){
+        console.log(e);
+    }
+
 }
 
 
-var hsm_file = userArgs[0];
