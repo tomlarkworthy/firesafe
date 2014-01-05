@@ -178,6 +178,7 @@ npm install
 will read the package.json and install our project specific stuff (e.g. firebase API)
 we will add additional dependancies over time
 
+
 run tests using nodeunit
 ========================
 (see https://github.com/caolan/nodeunit/)
@@ -187,6 +188,10 @@ run arbitary tasks in subfolders using grunt
 ========================
 grunt hellofirebase
 
+#Changing development repo
+update the passwords.js
+then make sure you don't accidentally commit it!
+git update-index --assume-unchanged properties.js
 
 #Related Work
 
