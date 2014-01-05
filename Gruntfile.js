@@ -15,11 +15,11 @@ module.exports = function(grunt) {
 		},pandoc: {
             toHtml: {
                 configs: {
-                    "publish"   : 'HTML'       // Publish File Format.
+                    "publish"   : 'HTML' 
                 },
                 files: {
                     "from": [
-                        "firesafe.md"
+                        "README.md"
                     ]
                 }
             }

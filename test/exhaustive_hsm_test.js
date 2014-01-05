@@ -3,7 +3,7 @@
  * a test case that has every class of interesting transition in a HSM.
  *
  * We are not the only people to notice the value in this topology as a test case. We are reuseing the test case
- * developed by David Durman in his "statechart" library which also replicates the very same topology.
+ * developed by David Durman in his "statechart" library which replicates a similar topology.
  *
  * Thus we can use David's state machine as a controller for testing our implementation of the topology.
  */
