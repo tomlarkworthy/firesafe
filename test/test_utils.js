@@ -11,6 +11,7 @@
  * read permissions also want the expected value in the read location
  */
 
+
 /**
  * This tests that admin can write independent of read/write rules by writing to a specific location (can be /)
  * @param where the firebase path e.g. "/" for writing the whole firebase

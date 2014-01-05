@@ -19,7 +19,7 @@ exports.convert = function(hsm){
     //generate code
     var code = exports.top_block(top_block, "\n", []);
 
-    console.log(code);
+    //console.log(code);
 
     return code
 };
@@ -31,6 +31,24 @@ exports.is_string = function(x){
 
 exports.replace_prefix = function(x, new_prefix){
     return x.replace(/\n\s*/gm, new_prefix);
+};
+
+exports.sortObject = function(o) {
+    var sorted = {},
+        key, a = [];
+
+    for (key in o) {
+        if (o.hasOwnProperty(key)) {
+            a.push(key);
+        }
+    }
+
+    a.sort();
+
+    for (key = 0; key < a.length; key++) {
+        sorted[a[key]] = o[a[key]];
+    }
+    return sorted;
 };
 
 
@@ -65,7 +83,7 @@ exports.block = function(block, prefix, types){
 
         if(block['val'][".states"]){
             machine = exports.new_machine();
-            machine.process_states(block['val'][".states"])
+            machine.process_states(block['val'][".states"], null);
         }
 
         if(block['val'][".variables"]){
@@ -98,6 +116,7 @@ exports.block = function(block, prefix, types){
         }
 
         if(machine){
+            machine.flatten_transactions();
             lines.push('".write"'+':' + machine.gen_write(prefix + "\t"));
         }
 
@@ -115,51 +134,43 @@ exports.block = function(block, prefix, types){
 
 exports.new_machine = function(){
     var machine = {
-        states:{},
+        states:{}, //map from name -> {parent, init}
         transitions:{},
         variables:{},
         types:{},
+        signals:{},//all possible signals encountered
         initial:null
     };
 
     /**
-     * sets up the state list for the machine, and sets the initial state
-     * todo: a whole state machine might be a substate
-     {
-          '!type': 'OBJ',
-          val: {
-             IDLE: { '!type': 'OBJ', val: [Object] },
-             TX: { '!type': 'OBJ', val: {} },
-             RX: { '!type': 'OBJ', val: {} },
-             ACK_TX: { '!type': 'OBJ', val: {} },
-             ACK_RX: { '!type': 'OBJ', val: {} } }
-     }
-
-     * @param states_parse_obj
+     * sets up the state list recursively for the machine, and sets the initial state
      */
-    machine.process_states = function(states_parse_obj){
+    machine.process_states = function(states_parse_obj, parent){
         //console.log("\nstates:", states_parse_obj);
-        for(var name in states_parse_obj.val){
-            machine.states[name] = {};
-            if(states_parse_obj.val[name].initial == true){
-                machine.initial = name;
+
+        if(states_parse_obj.val[".init"]){
+            var init = states_parse_obj.val[".init"].val;
+
+            if(parent != null){
+                machine.states[parent].init = init;
+                machine.states[parent].leaf = false;
             }
+        }else{
+            var init = null;
         }
 
-    };
-    /**
-     {
-          '!type': 'OBJ',
-          val:
-           { item: { '!type': 'OBJ', val: [Object] },
-             tx_loc: { '!type': 'OBJ', val: [Object] },
-             tx: { '!type': 'OBJ', val: [Object] },
-             rx_loc: { '!type': 'OBJ', val: [Object] },
-             rx: { '!type': 'OBJ', val: [Object] } }
-     }
+        for(var name in states_parse_obj.val){
 
-     * @param variables_parse_obj
-     */
+            if(name == ".init"){
+            }else{
+
+                machine.states[name] = {parent:parent, leaf:true};
+                machine.process_states(states_parse_obj.val[name], name)
+            }
+        }
+        //console.log("\nmachine.states:", machine.states);
+    };
+
     machine.process_variables = function(variables_parse_obj){
         //console.log("\nprocess_variables:", variables_parse_obj);
         for(var name in variables_parse_obj.val){
@@ -179,15 +190,29 @@ exports.new_machine = function(){
             machine.process_transition(name, transitions_parse_obj.val[name].val);
         }
         //console.log("\ntransitions:", machine.transitions);
+        machine.signals = exports.sortObject(machine.signals);
+        //console.log("\signals:", machine.signals);
     };
 
     machine.process_transition = function(name, properties){
         //console.log("\nprocess_transition:", name, properties);
         var from, to, guard="", effect="";
         var transition = {};
-        transition.from = properties.from.val;
+        if(properties.from){
+            transition.from = properties.from.val;
+        }else{
+            transition.from = null;
+        }
+
         transition.to = properties.to.val;
         transition.type = properties.type.val;
+
+        if(properties.signal){
+            transition.signal = properties.signal.val;
+        }else{
+            transition.signal = null;
+        }
+
         if(properties.guard){
             transition.guard = properties.guard.val
         }else{
@@ -199,6 +224,7 @@ exports.new_machine = function(){
             transition.effect = null
         }
 
+        machine.signals[transition.signal] = {};
         machine.transitions[name] = transition;
 
         //console.log("\ntransition:", transition);
@@ -210,6 +236,97 @@ exports.new_machine = function(){
             machine.types[name] = types_parse_obj.val[name].val;
         }
         //console.log("\nmachine.types:", machine.types);
+    };
+
+    /**
+     * This replaces the hierarchical transitions with many explicit flat transformation
+     *
+     * For example is S is the parent of S1
+     * and S has a transition "G" to S2, by the UML spec S1 also should also respond to "G"
+     * The process of flattening makes explicit all the inheritance.
+     * by creating all the transitions possible from leaf states
+     */
+    machine.flatten_transactions = function(){
+        var flat_transitions = {};
+        var uid = 0;
+
+        //find init transitions
+        for(var t_id in machine.transitions){
+            var transition = machine.transitions[t_id];
+            if(transition.from == null){ //its an init transition
+                var target = machine.resolve_target(transition.to);
+                flat_transitions[uid] = {
+                    from:null,
+                    to:target,
+                    type:transition.type,
+                    signal:transition.signal,
+                    guard:transition.guard,
+                    effect:transition.effect
+                };
+                uid += 1;
+            }
+        }
+
+
+
+        for(var state_name in machine.states){
+            if(machine.states[state_name].leaf){
+                //we have ancestor transitions that are inherited by this leaf node
+                for(var signal in machine.signals){
+                    var transition = machine.resolve_signal(signal, state_name);
+                    if(transition == null) continue;
+                    var target = machine.resolve_target(transition.to);
+
+                    flat_transitions[uid] = {
+                        from:state_name,
+                        to:target,
+                        type:transition.type,
+                        signal:signal,
+                        guard:transition.guard,
+                        effect:transition.effect
+                    };
+                    uid += 1;
+                }
+            }
+        }
+
+        //console.log("\nflat_transitions", flat_transitions)
+        machine.transitions = flat_transitions;
+    };
+
+    /**
+     * calculates where a transition would end up, if starting and pointing to the specific location
+     */
+    machine.resolve_target = function(to){
+        //exit's would fire at current state - from first in normal embedded
+        //then the transition takes place to the high level destination
+        var current = to;
+        //we then recurse until reaching a leaf state
+        while(machine.states[current].init){
+            current = machine.states[current].init
+        }
+
+        return current;
+    };
+
+    /**
+     * returns a transition, or null, that leaves from the state, or one of its ancestors
+     */
+    machine.resolve_signal = function(signal, state){
+        var current = state;
+
+        while(current != null){
+            //look for transition leaving current with right signal
+            for(var t_id in machine.transitions){
+                if(machine.transitions[t_id].signal === signal && machine.transitions[t_id].from === current){
+                    return machine.transitions[t_id];
+                }
+            }
+            //none matches, so go up hierarchy
+            current = machine.states[current].parent;
+        }
+
+        return null;
     };
 
     /**
@@ -230,29 +347,36 @@ exports.new_machine = function(){
             clause += prefix +  "\t\t/*type  */("+machine.types[transition.type] +")";
 
             //then add the from state requirement (if any, could be initial state)
-            if(transition.from != 'null'){
-                clause += prefix + "\t\t/*from  */ && data.child('state').val() == '" + transition.from +"'"
+            if(transition.from!= null && transition.from != 'null'){
+                clause += prefix + "\t\t/*from  */ && data.child('state').val() == '" + transition.from +"'";
             }else{
-                clause += prefix + "\t\t/*from  */ && data.child('state').val() == null"
+                clause += prefix + "\t\t/*from  */ && data.child('state').val() == null";
             }
 
             //then add the to state requirement
-            if(transition.to != 'null'){
-                clause += prefix + "\t\t/*to    */ && newData.child('state').val() == '" + transition.to+"'"
+            if(transition.to!= null && transition.to != 'null'){
+                clause += prefix + "\t\t/*to    */ && newData.child('state').val() == '" + transition.to+"'";
             }else{
-                clause += prefix + "\t\t/*to    */ && newData.child('state').val() == null"
+                clause += prefix + "\t\t/*to    */ && newData.child('state').val() == null";
+            }
+
+            //then add the signal logic (if any)
+            if(transition.signal != null){
+                clause += prefix + "\t\t/*signal*/ && newData.child('signal').val() == '"+transition.signal+"'";
+            }else{
+                clause += prefix + "\t\t/*signal*/ && newData.child('signal').val() == null";
             }
 
             //then add the guard logic (if any)
             if(transition.guard != null){
                 clause += prefix + "\t\t/*guards*/ && (" + exports.replace_prefix(transition.guard, prefix + "\t\t\t");
-                clause += prefix + "\t\t)"
+                clause += prefix + "\t\t)";
             }
 
             //then add the effect logic (if any)
             if(transition.effect != null){
                 clause += prefix + "\t\t/*effect*/ && (" + exports.replace_prefix(transition.effect, prefix + "\t\t\t");
-                clause += prefix + "\t\t)"
+                clause += prefix + "\t\t)";
             }
 
             //then add the fixings for variables

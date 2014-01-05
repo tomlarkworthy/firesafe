@@ -49,8 +49,9 @@ module.exports = function(grunt) {
     grunt.registerTask('parser', ['peg']);
 
 
-    grunt.registerTask('test_parser', ['peg', "nodeunit:hsm_to_rules"]);
-	
+    grunt.registerTask('test_parser',     ['peg', "nodeunit:hsm_to_rules"]);
+    grunt.registerTask('test_exhaustive', ['peg', "nodeunit:exhaustive"]);
+
 	//some basic tasks
 	grunt.registerTask('hello', function(){
 		console.log("hello");

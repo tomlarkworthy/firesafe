@@ -21,7 +21,7 @@ exports.hello = function(){
  * returns a deferred object, the error handler is called if the upload is rejected (e.g. invalid rules)
  */
 exports.setValidationRules = function(rules_str){
-	console.log("\n setValidationRules: ", rules_str);
+	//console.log("\n setValidationRules: ", rules_str);
 	//http://stackoverflow.com/questions/18840080/updating-firebase-security-rules-through-firebaseref-set
 	var $ = require('jquery-deferred');	
 	var def = $.Deferred();
@@ -36,8 +36,8 @@ exports.setValidationRules = function(rules_str){
 	};
 	
 	var req = https.request(options, function(res) {
-	  console.log("statusCode: ", res.statusCode);
-	  console.log("headers: ", res.headers);
+	  //console.log("statusCode: ", res.statusCode);
+	  //console.log("headers: ", res.headers);
 
 	  res.on('data', function(d) {
 		process.stdout.write(d);

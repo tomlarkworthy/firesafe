@@ -13,6 +13,7 @@ exports.testSendItemConversion = function(test){
     //transform hsm into rules
     try {
         var rules = converter.convert(hsm_def);
+        console.log("\n",rules);
 
         test.ok(true, "rules did not convert ok");
 
@@ -20,12 +21,14 @@ exports.testSendItemConversion = function(test){
         $.when(firebase_io.setValidationRules(rules)).then(function(){
             test.ok(true, "rules did not upload");
             test.done()
+        },function(error){
+            test.ok(false, "rules did not upload");
+            test.done()
         });
 
     }catch(e){
         console.log("\n", e.message);
-        console.log("\n", e);
-        console.trace(e);
+        console.log("\n", e.stack);
         test.ok(false, "should not have errors");
         test.done()
     }

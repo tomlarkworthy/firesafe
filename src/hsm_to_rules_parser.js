@@ -367,26 +367,26 @@ exports.parser = (function(){
             }
           }
           if (result1 !== null) {
-            if (/^[A-z]/.test(input.charAt(pos))) {
+            if (/^[A-z0-9]/.test(input.charAt(pos))) {
               result3 = input.charAt(pos);
               pos++;
             } else {
               result3 = null;
               if (reportFailures === 0) {
-                matchFailed("[A-z]");
+                matchFailed("[A-z0-9]");
               }
             }
             if (result3 !== null) {
               result2 = [];
               while (result3 !== null) {
                 result2.push(result3);
-                if (/^[A-z]/.test(input.charAt(pos))) {
+                if (/^[A-z0-9]/.test(input.charAt(pos))) {
                   result3 = input.charAt(pos);
                   pos++;
                 } else {
                   result3 = null;
                   if (reportFailures === 0) {
-                    matchFailed("[A-z]");
+                    matchFailed("[A-z0-9]");
                   }
                 }
               }
@@ -454,26 +454,26 @@ exports.parser = (function(){
             }
           }
           if (result0 !== null) {
-            if (/^[A-z]/.test(input.charAt(pos))) {
+            if (/^[A-z0-9]/.test(input.charAt(pos))) {
               result2 = input.charAt(pos);
               pos++;
             } else {
               result2 = null;
               if (reportFailures === 0) {
-                matchFailed("[A-z]");
+                matchFailed("[A-z0-9]");
               }
             }
             if (result2 !== null) {
               result1 = [];
               while (result2 !== null) {
                 result1.push(result2);
-                if (/^[A-z]/.test(input.charAt(pos))) {
+                if (/^[A-z0-9]/.test(input.charAt(pos))) {
                   result2 = input.charAt(pos);
                   pos++;
                 } else {
                   result2 = null;
                   if (reportFailures === 0) {
-                    matchFailed("[A-z]");
+                    matchFailed("[A-z0-9]");
                   }
                 }
               }
