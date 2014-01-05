@@ -15,7 +15,7 @@ module.exports = function(grunt) {
 		},pandoc: {
             toHtml: {
                 configs: {
-                    "publish"   : 'HTML' 
+                    "publish"   : 'HTML'
                 },
                 files: {
                     "from": [
@@ -49,4 +49,5 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test_parser',     ['peg', "nodeunit:hsm_to_rules"]);
     grunt.registerTask('test_exhaustive', ['peg', "nodeunit:exhaustive"]);
+    grunt.registerTask('test', ['peg', "nodeunit:all"]);
 };

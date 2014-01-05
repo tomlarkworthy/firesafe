@@ -1,8 +1,35 @@
 {
   "name": "firesafe",
-  "description": "Keep your data secure",
-  "version": "0.0.1",
-  "private": true,
+  "description": "Compile hierarchical state machine into Firebase security rules",
+  "version": "0.1.0",
+  "private": false,
+  "homepage": "https://github.com/tomlarkworthy/firesafe",
+  "author": {
+      "name": "Tom Larkworthy",
+      "email": "tom.larkworthy@gmail.com"
+  },
+  "repository": {
+      "type": "git",
+      "url": "git://github.com/tomlarkworthy/firesafe.git"
+  },
+  "bugs": {
+      "url": "https://github.com/tomlarkworthy/firesafe/issues"
+  },
+  "licenses": [
+      {
+          "type": "GPL-3.0+",
+          "url": "https://github.com/tomlarkworthy/firesafe/blob/master/LICENSE.txt"
+      },{
+          "type": "Firesafe",
+          "url": "https://github.com/tomlarkworthy/firesafe/blob/master/COPYING.txt"
+      }
+  ],
+  "engines": {
+      "node": "0.8"
+  },
+  "scripts": {
+      "test": "grunt test"
+  },
     
   "devDependencies": {
     "firebase": "1.0",
@@ -18,5 +45,9 @@
     "jquery-deferred": "0.3.0",
     "expect.js": "~0.2.0",
     "mocha": "~1.8.1"
+  },
+  "preferGlobal": "true",
+  "bin": {
+      "firesafe" : "src/firesafe.js"
   }
 }
