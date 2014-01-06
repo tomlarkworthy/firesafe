@@ -229,6 +229,7 @@ Note our HSM do not map directly onto UML statecharts. In particular, UML statec
 
 ### on roadmap
 * .hsm -> client state machine generator
+* HSM Generics??
 
 Updates for major developments or calls for help! https://groups.google.com/forum/?hl=en-GB#!forum/firesafe-announce
 
