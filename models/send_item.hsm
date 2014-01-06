@@ -28,7 +28,7 @@
                         newData.child('tx_loc').val() == null &&
                         newData.child('rx').val() == null &&
                         newData.child('rx_loc').val()  == null"
-                }, "SEND":{"from":"IDLE", "to":"TX", type:"self",
+            },"SEND":{"from":"IDLE", "to":"TX", type:"self",
                 "guard":"
                     data.child('item').exists() &&
                     root.child('users').child(newData.child('tx_loc').val()).exists()",

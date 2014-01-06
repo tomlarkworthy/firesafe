@@ -35,13 +35,13 @@ The language has a very natural graphical representation. To explain the languag
 
 One common source of complaints and support headaches is buying items in-game. If it goes wrong players could lose currency, or, if it's exploitable, cheaters profit and devalue the currency. This is an accute problem if the currency is bought with real world money.
 
-<doc/shop.png>
+![send_item_lhs_picture](/doc/shop.png)
 
 In a normal firebase setting user accounts are represented as wildcard ($user) childern of "users". By placing our state machine as a child of "$user", Firesafe will generate an state (and signal) variable as a child of any "$user" nodes. 
 
 We create secure firesafe variables: gold, swords and water, at the same hierarchical level as the state machine. This indicates those variables values are protected by Firesafe. They can only ever be tampered with by a connected client *if* explicitly mentioned in a "guard" of "effect" clause of the machine.
 
-In the shopping scenario a user has just a single state, "playing". New players won't have Firebase data initially, so the black circle represents the initialization. New clients cannot initialize their new user accounts to anything though (a source cheating). **Guard clauses (diamond) prevent transtions, unless the guard evaluates to true**. Guard and effect clauses are expressed as normal Firebase security expressions. In the shop case, the diagram forces clients to initialise their accounts with:
+In the shopping scenario a user has just a single state, "playing". New players won't have Firebase data initially, so the black circle represents the initialization. New clients cannot initialize their new user accounts to anything though (a source cheating). **Effect clauses denote post conditions of Firesafe variables, which must evaluate to true**. **Any Firesafe variable not mentioned in an effect is locked**. Guard and effect clauses are expressed as normal Firebase security expressions. In the shop case, the diagram forces clients to initialise their accounts with:
 
 ```
 {
@@ -54,7 +54,7 @@ In the shopping scenario a user has just a single state, "playing". New players 
 
 Once a player is playing, they have two options in the shop, buying a sword or water. Both these transion are labelled, which indicated the client must state which signal they are useing. In this example we use a guard to ensure the player has enough gold to make a purchase and they do not exceed a maximum for the items (max(swords) 2, max(water) 20).
 
-**Effect clauses denote post conditions of Firesafe variables, which must evaluate to true**. **Any Firesafe variable not mentioned in the effect will be locked**. So to buy a sword after initialization, a new player can update 
+**Gaurd clauses (diamond) prevent transtions unless the guard evaluates to true**. The guard in the shop ensure the player has the money and space in their inventory. So to buy a sword after initialization when the user has 100 gold and 0 swords, the new player can update 
 ```
 {
     signal:"BUY_SWORD",
@@ -66,8 +66,8 @@ on their "/user/<username>" Firebase reference. The player *cannot* sneak in an 
 
 The final digramatic feature worth mentioning is the unattached red arrow. Unattached arrows on a digram denote a *transition type*. **Transions only occur if their type clause evaluates to true, which commonly used to express permissions**. In the shop we only allow the owner of the user record to invoke transitions. The transition type in particular is an exellent building block for complex multi-user interactions, becuase you can easily express some transitions can only be performed by certain user roles.
 
-* complete hsm source file  - https://TODO
-* generated validation rules  - https://TODO
+* complete hsm source file  - https://github.com/tomlarkworthy/firesafe/blob/master/models/shop.hsm
+* generated validation rules  - https://github.com/tomlarkworthy/firesafe/blob/master/models/shop.rules
 
 # Example: Item Trade
 
@@ -81,16 +81,15 @@ Each user is either, IDLE, sending an item (TX) or receiving an item (RX). Furth
 
 Although both trading partners are both users, and thus running exactly the same state machine protocol, it is very difficult to visualise all the interactions without explicitly treating the reciever and sender as different state machines. Thus our first diagram is an aid to visualization. Each state is the product of both parties state. So an individual state of the joint diagram is the state of the sender (user A) & receiver (user B).
 
-<send_item_left.png>
+![send_item_lhs_picture](/doc/send_item_lhs.png)
 
 (guard and effect clauses have been lossy compressed for readability, see below for actual clauses)
 
-Our protocol is split into several stages. First, the sender indicates he wants to send a specific item to a specific player, by sending the signal "SEND". They *must* move the item out of the item slot and into their tx slot used internally for the protocol  (for illatration we are sending "GOLD"). They indicate the receiving party in the tx_loc slot, which acts like a pointer to stop disinterested parties being involved.
+Our protocol is split into several stages. First, the sender indicates he wants to send a specific item to a specific player, by transitioning to the TX state. They *must* move the item out of the item slot and into their tx slot used internally for the protocol  (for illatration we are sending "GOLD"). They indicate who they are sending to by writing the target username into the tx_loc slot, which acts like a pointer to stop disinterested parties being involved.
 
 ```
 {
     state: "TX",
-    signal:"SEND",
     item:null,
     tx:"GOLD",
     tx_loc:"receiver"
@@ -116,13 +115,12 @@ Once a sender is trying to send to somebody, a receiver can transition into the 
 ```
 {
     state:"RX",
-    signal:"RECEIVE",
     rx:"GOLD",
     rx_loc:"sender"
 }
 ```
 
-The time we guard that the reciever has room to receive the item, and check the sender is in the right state, and pointing to the reciever. Note, we use Firebase's root var and the rx_loc pointer to navigate to the other users record to test conditions. 
+This time, the guard checks that the reciever has room to receive the item, and that the sender is in the right state, and that the sender's tx_loc is pointing to the reciever. Note, we use Firebase's root var and the rx_loc pointer to navigate to the other users record to test conditions. 
 
 ```
 data.child('item') == null &&
@@ -157,15 +155,15 @@ We have self, other and either transition types to indicate the transtion can be
 {
     "from":"RX", 
     "to":"ACK_RX", 
-    type:"other"
+    "type":"other"
 }"
 ```
 
 The receiver does an ACK_TX similarly on the senders machine. Once both sender and receiver have ACKed. The transaction passes the point of no return.
 
-Becuase either party could disconnect from Firebase at this point, we allow either party to commit the final stages of the transaction.
+Becuase either party could disconnect from Firebase at this point, we allow either party to commit the final stages of the transaction. This is indicated by setting the type to "either".
 
-The sender null's their item slot and returns to IDLE, checking the other party is in the ACK_RX state (remember they are transitioning from ACK_TX too).
+The sender finalizes by setting the item, and other variables, to null, double checking the other party is in the ACK_RX state (remember they are transitioning from ACK_TX too). Thus the sender can only commit once both parties have ACKed.
 
 ```
 "COMMIT_TX":{"from":"ACK_TX", "to":"IDLE", type:"either",
@@ -178,7 +176,7 @@ The sender null's their item slot and returns to IDLE, checking the other party 
 }
 ```
 
-Finally the receiver transtions back to the IDLE state, but now with the item that was stored in the rx slot. Care has to be taken the COMMIT_RX is only possible after the COMMIT_TX is performed (see the gaurd).
+For the receiver to finalize, the receiver transtions back to the IDLE state, but copies the data in the rx slot into their item slot, thus gaining the item. Care has to be taken the COMMIT_RX is only possible after the COMMIT_TX is performed (see the gaurd). We do not want the COMMIT_RX to occur after the first ACK_RX but before the ACK_TX.
 
 ```
 "COMMIT_RX":{"from":"ACK_RX", "to":"IDLE", type:"either",
@@ -192,10 +190,16 @@ Finally the receiver transtions back to the IDLE state, but now with the item th
 }
 ```
 
-Additional rollback transtions are required so that either party can backout if one goes offline before the double ACK. Item states can be restored using the information in the tx and rx variables of the sender/receiver, but it adds little to discuss those transitions here.
+Additional rollback transtions are required so that either party can backout if one goes offline before the double ACK_RX + ACK_TX. Item states can be restored using the information in the tx and rx variables of the sender/receiver, but it adds little to discuss those transitions here.
 
-* complete hsm source file  - https://TODO
-* generated validation rules  - https://TODO
+While it is natural to develop the protocol using two distrinct state machines, in reality the user state machine is identical for both parties. In the following diagram we re-roll the joint diagram into a single HSM ready for code generation. (todo: update diagram with latest notation)
+
+![send_item_rhs_picture](/doc/send_item_rhs.png)
+
+We do not make any promises about the correctness of this protocol ... yet. In particular, we are not sure wether a deadlock can exist when the sender quickly moves onto a different trade with a another user. However, verifying the protocols is a high priority for Firesafe, so sign up to our announcements if this is important to you https://groups.google.com/forum/?hl=en-GB#!forum/firesafe-announce
+
+* complete hsm source file  - https://github.com/tomlarkworthy/firesafe/blob/master/models/send_item.hsm
+* generated validation rules  - https://github.com/tomlarkworthy/firesafe/blob/master/models/send_item.rules
 
 #Example: Hierarchical State Machines
 
@@ -218,6 +222,12 @@ Note our HSM do not map directly onto UML. In particular, UML statecharts are de
 ### on roadmap
 * client side state machine generator
 
+Updates for major developments or calls for help! https://groups.google.com/forum/?hl=en-GB#!forum/firesafe-announce
+
+Requesting features, or just chat, at https://groups.google.com/forum/?hl=en-GB#!forum/firesafe-dev
+
+# Using Firesafe
+
 ### Install with NPM
 
 ```
@@ -229,8 +239,4 @@ npm install -g firesafe
 firesafe <src_hsm> <dst_security_rules>
 ```
 
-
-
-
-
-
+upload the generated file to your firebase security rules via the web API. We can automate this if it is a highly requested feature (we have a test driven framework).

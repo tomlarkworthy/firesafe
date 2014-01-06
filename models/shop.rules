@@ -1,0 +1,53 @@
+
+{
+	"rules":{
+		".read":true,
+		"users":{
+			"$user":{
+				".write":"
+					( //0: null -> playing, self
+						/*type  */($user == auth.username)
+						/*from  */ && data.child('state').val() == null
+						/*to    */ && newData.child('state').val() == 'playing'
+						/*signal*/ && newData.child('signal').val() == null
+						/*effect*/ && (
+							newData.child('gold').val()==20 &&
+							newData.child('swords').val()==0 &&
+							newData.child('water').val()==1
+						)
+					)||
+					( //1: playing -> playing, self
+						/*type  */($user == auth.username)
+						/*from  */ && data.child('state').val() == 'playing'
+						/*to    */ && newData.child('state').val() == 'playing'
+						/*signal*/ && newData.child('signal').val() == 'BUY_SWORD'
+						/*guards*/ && (
+							newData.child('gold').val()>=10 &&
+							newData.child('swords').val() <=1
+						)
+						/*effect*/ && (
+							newData.child('gold').val() == data.child('gold').val() - 10 &&
+							newData.child('swords').val() == data.child('swords').val() + 1
+						)
+						&& newData.child('water').val() == data.child('water').val() //lock for water
+					)||
+					( //2: playing -> playing, self
+						/*type  */($user == auth.username)
+						/*from  */ && data.child('state').val() == 'playing'
+						/*to    */ && newData.child('state').val() == 'playing'
+						/*signal*/ && newData.child('signal').val() == 'BUY_SWORD'
+						/*guards*/ && (
+							newData.child('gold').val()>=4 &&
+							newData.child('water').val() <=14
+						)
+						/*effect*/ && (
+							newData.child('gold').val() == data.child('gold').val() - 4 &&
+							newData.child('swords').val() == data.child('swords').val() +6
+						)
+						&& newData.child('water').val() == data.child('water').val() //lock for water
+					)
+				"
+			}
+		}
+	}
+}

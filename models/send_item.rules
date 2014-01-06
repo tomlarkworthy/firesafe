@@ -1,0 +1,115 @@
+
+{
+	"rules":{
+		".read":true,
+		"users":{
+			"$user":{
+				".write":"
+					( //0: null -> IDLE, self
+						/*type  */($user == auth.username)
+						/*from  */ && data.child('state').val() == null
+						/*to    */ && newData.child('state').val() == 'IDLE'
+						/*signal*/ && newData.child('signal').val() == null
+						/*effect*/ && (
+							newData.child('item').val() == null &&
+							newData.child('tx').val() == null &&
+							newData.child('tx_loc').val() == null &&
+							newData.child('rx').val() == null &&
+							newData.child('rx_loc').val()  == null
+						)
+					)||
+					( //1: IDLE -> TX, self
+						/*type  */($user == auth.username)
+						/*from  */ && data.child('state').val() == 'IDLE'
+						/*to    */ && newData.child('state').val() == 'TX'
+						/*signal*/ && newData.child('signal').val() == null
+						/*guards*/ && (
+							data.child('item').exists() &&
+							root.child('users').child(newData.child('tx_loc').val()).exists()
+						)
+						/*effect*/ && (
+							newData.child('tx').val() == data.child('item').val() &&
+							newData.child('tx_loc').val() != null
+						)
+						&& newData.child('rx_loc').val() == data.child('rx_loc').val() //lock for rx_loc
+						&& newData.child('rx').val() == data.child('rx').val() //lock for rx
+					)||
+					( //2: IDLE -> RX, self
+						/*type  */($user == auth.username)
+						/*from  */ && data.child('state').val() == 'IDLE'
+						/*to    */ && newData.child('state').val() == 'RX'
+						/*signal*/ && newData.child('signal').val() == null
+						/*guards*/ && (
+							!data.child('item').exists() &&
+							$user == root.child('users').child(newData.child('rx_loc').val()).child('tx_loc').val()
+						)
+						/*effect*/ && (
+							newData.child('rx').val() == root.child('users').child(newData.child('rx_loc').val()).child('tx').val() &&
+							newData.child('rx_loc').val() != null
+						)
+						&& newData.child('item').val() == data.child('item').val() //lock for item
+						&& newData.child('tx_loc').val() == data.child('tx_loc').val() //lock for tx_loc
+					)||
+					( //3: TX -> ACK_TX, other
+						/*type  */(auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val())
+						/*from  */ && data.child('state').val() == 'TX'
+						/*to    */ && newData.child('state').val() == 'ACK_TX'
+						/*signal*/ && newData.child('signal').val() == null
+						/*guards*/ && (
+							root.child('users').child(newData.child('tx_loc').val()).child('state').val() == 'ACK_RX'
+						)
+						&& newData.child('item').val() == data.child('item').val() //lock for item
+						&& newData.child('tx_loc').val() == data.child('tx_loc').val() //lock for tx_loc
+						&& newData.child('tx').val() == data.child('tx').val() //lock for tx
+						&& newData.child('rx_loc').val() == data.child('rx_loc').val() //lock for rx_loc
+						&& newData.child('rx').val() == data.child('rx').val() //lock for rx
+					)||
+					( //4: RX -> ACK_RX, other
+						/*type  */(auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val())
+						/*from  */ && data.child('state').val() == 'RX'
+						/*to    */ && newData.child('state').val() == 'ACK_RX'
+						/*signal*/ && newData.child('signal').val() == null
+						&& newData.child('item').val() == data.child('item').val() //lock for item
+						&& newData.child('tx_loc').val() == data.child('tx_loc').val() //lock for tx_loc
+						&& newData.child('tx').val() == data.child('tx').val() //lock for tx
+						&& newData.child('rx_loc').val() == data.child('rx_loc').val() //lock for rx_loc
+						&& newData.child('rx').val() == data.child('rx').val() //lock for rx
+					)||
+					( //5: ACK_TX -> IDLE, either
+						/*type  */($user == auth.username || auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val())
+						/*from  */ && data.child('state').val() == 'ACK_TX'
+						/*to    */ && newData.child('state').val() == 'IDLE'
+						/*signal*/ && newData.child('signal').val() == null
+						/*guards*/ && (
+							root.child('users').child(data.child('tx_loc').val()).child('state').val() == 'ACK_RX'
+						)
+						/*effect*/ && (
+							newData.child('item').val() == null &&
+							newData.child('tx_loc').val() == null &&
+							newData.child('tx').val() == null
+						)
+						&& newData.child('rx_loc').val() == data.child('rx_loc').val() //lock for rx_loc
+						&& newData.child('rx').val() == data.child('rx').val() //lock for rx
+					)||
+					( //6: ACK_RX -> IDLE, either
+						/*type  */($user == auth.username || auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val())
+						/*from  */ && data.child('state').val() == 'ACK_RX'
+						/*to    */ && newData.child('state').val() == 'IDLE'
+						/*signal*/ && newData.child('signal').val() == null
+						/*guards*/ && (
+							root.child('users').child(data.child('rx_loc').val()).child('state').val() != 'TX' &&
+							root.child('users').child(data.child('rx_loc').val()).child('state').val() != 'ACK_TX'
+						)
+						/*effect*/ && (
+							newData.child('item').val() == data.child('rx').val()&&
+							newData.child('rx_loc').val() == null &&
+							newData.child('rx').val() == null
+						)
+						&& newData.child('tx_loc').val() == data.child('tx_loc').val() //lock for tx_loc
+						&& newData.child('tx').val() == data.child('tx').val() //lock for tx
+					)
+				"
+			}
+		}
+	}
+}
