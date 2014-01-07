@@ -25,13 +25,6 @@ Firebase *can* solve this with a **two phase commit protocol**. Classic literatu
 
 However, while HSM will prevent silly mistakes, it still can't prevent high level protocol errors. We are currently connecting Firesafe to a theorem proover. One this is complete will we be able to **prove non-blocking properties and protocol invariants for arbitrary HSMs**. Our long term goal is to make **"provably secure, deadlock free, multi-user interactions"** simple. 
 
-##Writing Firebase Rules is hard
-
-Did you know ".validation" rules don't fire when newData() is null? [1] This means enforcing the topology of a Firebase subtree can't be done in validation rules, as a user is able to "null" any subtree they have write access. This is a problem in many Firebases online right now!
-
-To enforce the state of a multi-state protocol, all logic has to be condensed into a single ".write" Firebase boolean expression
-
-[1] https://groups.google.com/forum/#!topic/firebase-talk/TbCK_zHyghg
 
 #The HSM Language
 
