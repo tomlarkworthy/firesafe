@@ -34,7 +34,8 @@
                     root.child('users').child(newData.child('tx_loc').val()).exists()",
                 "effect":"
                     newData.child('tx').val() == data.child('item').val() &&
-                    newData.child('tx_loc').val() != null"
+                    newData.child('tx_loc').val() != null &&
+                    newData.child('item').val() == null"
             },"RECEIVE":{"from":"IDLE", "to":"RX", type:"self",
                 "guard":"
                     !data.child('item').exists() &&

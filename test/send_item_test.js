@@ -209,6 +209,23 @@ exports.testSendWrongUserFail = function(test){
 };
 
 /**
+ * Test user can't sneak an object in during transition to TX
+ * @param test
+ */
+exports.testSendInsertFail = function(test){
+    var test_utils = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_cant_write("sender", "/users/sender",
+        {
+            state:"TX",
+            item:"GOLD",
+            tx:"GOLD",
+            tx_loc:"receiver"
+        }, test)).then(test.done);
+};
+
+/**
  * Test a correctly formed sender transition works
  * @param test
  */
