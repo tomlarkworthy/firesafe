@@ -7,9 +7,9 @@
         ".variables":{
             "item":{},
             "tx_loc":{},
-            "tx":{},
+            "tx_itm":{},
             "rx_loc":{},
-            "rx":{}
+            "rx_itm":{}
         },".states":{
             "IDLE":{},
             "TX":{},
@@ -24,24 +24,24 @@
             "INITIALIZE":{"from":"null", "to":"IDLE", type:"self",
                     "effect":"
                         newData.child('item').val() == null &&
-                        newData.child('tx').val() == null &&
+                        newData.child('tx_itm').val() == null &&
                         newData.child('tx_loc').val() == null &&
-                        newData.child('rx').val() == null &&
+                        newData.child('rx_itm').val() == null &&
                         newData.child('rx_loc').val()  == null"
             },"SEND":{"from":"IDLE", "to":"TX", type:"self",
                 "guard":"
-                    data.child('item').exists() &&
-                    root.child('users').child(newData.child('tx_loc').val()).exists()",
+                    data.child('item').val() != null &&
+                    root.child('users').child(newData.child('tx_loc').val()).child('state').val() != null",
                 "effect":"
-                    newData.child('tx').val() == data.child('item').val() &&
+                    newData.child('tx_itm').val() == data.child('item').val() &&
                     newData.child('tx_loc').val() != null &&
                     newData.child('item').val() == null"
             },"RECEIVE":{"from":"IDLE", "to":"RX", type:"self",
                 "guard":"
-                    !data.child('item').exists() &&
+                    data.child('item').val() == null &&
                     $user == root.child('users').child(newData.child('rx_loc').val()).child('tx_loc').val()",
                 "effect":"
-                    newData.child('rx').val() == root.child('users').child(newData.child('rx_loc').val()).child('tx').val() &&
+                    newData.child('rx_itm').val() == root.child('users').child(newData.child('rx_loc').val()).child('tx_itm').val() &&
                     newData.child('rx_loc').val() != null"
             },"ACK_RX":{"from":"RX", "to":"ACK_RX", type:"other"
             },"ACK_TX":{"from":"TX", "to":"ACK_TX", type:"other",
@@ -53,15 +53,15 @@
                 "effect":"
                     newData.child('item').val() == null &&
                     newData.child('tx_loc').val() == null &&
-                    newData.child('tx').val() == null"
+                    newData.child('tx_itm').val() == null"
             },"COMMIT_RX":{"from":"ACK_RX", "to":"IDLE", type:"either",
                 "guard":"
                     root.child('users').child(data.child('rx_loc').val()).child('state').val() != 'TX' &&
                     root.child('users').child(data.child('rx_loc').val()).child('state').val() != 'ACK_TX'",
                 "effect":"
-                    newData.child('item').val() == data.child('rx').val()&&
+                    newData.child('item').val() == data.child('rx_itm').val()&&
                     newData.child('rx_loc').val() == null &&
-                    newData.child('rx').val() == null"
+                    newData.child('rx_itm').val() == null"
             }
         }
       }

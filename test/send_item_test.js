@@ -15,7 +15,7 @@ var IDLE_IDLE_checkpoint,
 
 
 
-    /**********************************************************************************************************************
+/**********************************************************************************************************************
  * INITIAL RULES
  *********************************************************************************************************************
  * Send the hand crafted rules to Firebase, important this occurs first to setup test suite with the rules we want to test
@@ -34,6 +34,9 @@ exports.testWriteSendXRulesValid = function(test){
 
     $.when(firebase_io.setValidationRules(rules))
         .then(function(){
+
+            fs.writeFileSync("./models/send_item.rules", rules);
+
             test.ok(true, "these rules should have been accepted");
             test.done();
         },function(error){ //deferred error handler should not be called
@@ -152,7 +155,7 @@ exports.testSendSwitchItemFail = function(test){
         {
             state:"TX",
             item:null,
-            tx:"XXX",//don't own!
+            tx_itm:"XXX",//don't own!
             tx_loc:"receiver"
         }, test)).then(test.done);
 };
@@ -169,7 +172,7 @@ exports.testSendWrongAddressFail = function(test){
         {
             state:"TX",
             item:null,
-            tx:"GOLD",
+            tx_itm:"GOLD",
             tx_loc:"fsdfs" //not a user!
         }, test)).then(test.done);
 };
@@ -185,7 +188,7 @@ exports.testReceiveOutOfOrderFail = function(test){
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"RX",
-            rx:"GOLD",
+            rx_itm:"GOLD",
             rx_loc:"sender"
         }, test)).then(test.done);
 };
@@ -203,7 +206,7 @@ exports.testSendWrongUserFail = function(test){
         {
             state:"TX",
             item:null,
-            tx:"GOLD",
+            tx_itm:"GOLD",
             tx_loc:"receiver"
         }, test)).then(test.done);
 };
@@ -212,7 +215,7 @@ exports.testSendWrongUserFail = function(test){
  * Test user can't sneak an object in during transition to TX
  * @param test
  */
-exports.testSendInsertFail = function(test){
+exports.testSendInsertItemFail = function(test){
     var test_utils = require("../test/test_utils.js");
     var $ = require('jquery-deferred');
 
@@ -220,7 +223,7 @@ exports.testSendInsertFail = function(test){
         {
             state:"TX",
             item:"GOLD",
-            tx:"GOLD",
+            tx_itm:"GOLD",
             tx_loc:"receiver"
         }, test)).then(test.done);
 };
@@ -237,7 +240,7 @@ exports.testSendTransition = function(test){
         {
             state:"TX",
             item:null,
-            tx:"GOLD",
+            tx_itm:"GOLD",
             tx_loc:"receiver"
         }, test)).then(test.done);
 };
@@ -264,7 +267,7 @@ exports.testReceiveCheatFail = function(test){
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"RX",
-            rx:"XXX", //wrong!
+            rx_itm:"XXX", //wrong!
             rx_loc:"sender"
         }, test)).then(test.done);
 };
@@ -280,7 +283,7 @@ exports.testReceivePaddingRxFail = function(test){
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"RX",
-            rx:"GOLD",
+            rx_itm:"GOLD",
             rx_loc:"sender",
             tx_loc:"sender" //extra info
         }, test)).then(test.done);
@@ -297,7 +300,7 @@ exports.testReceivePaddingItemFail = function(test){
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"RX",
-            rx:"GOLD",
+            rx_itm:"GOLD",
             rx_loc:"sender",
             item:"GOLD" //extra info
         }, test)).then(test.done);
@@ -314,10 +317,29 @@ exports.testAckRXOutOfOrderFail = function(test){
     $.when(test_utils.assert_cant_write("sender", "/users/receiver",
         {
             state:"ACK_RX",
-            rx:"GOLD",
+            rx_itm:"GOLD",
             rx_loc:"sender"
         }, test)).then(test.done);
 };
+
+/**
+ * Test a user can't sneak it an alteration to tx while Rxing
+ * @param test
+ */
+
+/* TODO: broken, need to fix lock code
+exports.testReceiveInsertTxFail = function(test){
+    var test_utils = require("../test/test_utils.js");
+    var $ = require('jquery-deferred');
+
+    $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
+        {
+            state:"RX",
+            rx_itm:"GOLD",
+            tx_itm:"GOLD",
+            rx_loc:"sender"
+        }, test)).then(test.done);
+};*/
 
 /**
  * Test a correctly formed rx transition works
@@ -330,7 +352,7 @@ exports.testReceiveTransition = function(test){
     $.when(test_utils.assert_can_write("receiver", "/users/receiver",
         {
             state:"RX",
-            rx:"GOLD",
+            rx_itm:"GOLD",
             rx_loc:"sender"
         }, test)).then(test.done);
 };
@@ -373,7 +395,7 @@ exports.testAckRXIncompleteFail = function(test){
     $.when(test_utils.assert_cant_write("sender", "/users/receiver",
         {
             state:"ACK_RX",
-            rx:"GOLD"
+            rx_itm:"GOLD"
         }, test)).then(test.done);
 };
 
@@ -388,7 +410,7 @@ exports.testAckRXWrongUserFail = function(test){
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"ACK_RX",
-            rx:"GOLD",
+            rx_itm:"GOLD",
             rx_loc:"sender"
         }, test)).then(test.done);
 };
@@ -406,7 +428,7 @@ exports.testAckTXOutOfOrderFail = function(test){
         {
             state:"ACK_TX",
             item:null,
-            tx:"GOLD",
+            tx_itm:"GOLD",
             tx_loc:"receiver"
         }, test)).then(test.done);
 };
@@ -422,7 +444,7 @@ exports.testAckRXTransition = function(test){
     $.when(test_utils.assert_can_write("sender", "/users/receiver",
         {
             state:"ACK_RX",
-            rx:"GOLD",
+            rx_itm:"GOLD",
             rx_loc:"sender"
         }, test)).then(test.done);
 };
@@ -479,7 +501,7 @@ exports.testAckTXTransition = function(test){
         {
             state:"ACK_TX",
             item:null,
-            tx:"GOLD",
+            tx_itm:"GOLD",
             tx_loc:"receiver"
         }, test)).then(test.done);
 };
