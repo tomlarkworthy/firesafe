@@ -49,7 +49,8 @@
             },"ACK_RX":{"from":"RX", "to":"ACK_RX", type:"other",
 				"guard":"
                     root.child('users').child(data.child('rx_loc').val()).child('state').val() == 'TX' && //bug discovered during FM, check other hasn't cancelled
-                    root.child('users').child(data.child('rx_loc').val()).child('tx_loc').val() == $user  //and they are sending to us, otherwise sender can swap recepient"  
+                    root.child('users').child(data.child('rx_loc').val()).child('tx_loc').val() == $user  //and they are sending to us, otherwise sender can swap recepient
+                    "  
             },"ACK_TX":{"from":"TX", "to":"ACK_TX", type:"other",
                 "guard":"
                     root.child('users').child(newData.child('tx_loc').val()).child('state').val() == 'ACK_RX'"
@@ -72,7 +73,9 @@
                 "guard":"
                     (root.child('users').child(data.child('tx_loc').val()).child('state').val() != 'RX' &&
                     root.child('users').child(data.child('tx_loc').val()).child('state').val() != 'ACK_RX') ||(
-						root.child('users').child(data.child('tx_loc').val()).child('rx_loc').val() != $user)",
+						root.child('users').child(data.child('tx_loc').val()).child('rx_loc').val() != $user)
+                    
+                    ",
                 "effect":"
                     newData.child('tx_itm').val() == null &&
                     newData.child('tx_loc').val() == null &&
@@ -89,7 +92,7 @@
                     root.child('users').child(data.child('rx_loc').val()).child('state').val() == 'TX' && 
                     root.child('users').child(data.child('rx_loc').val()).child('tx_loc').val() == $user
                     "
-            },"CANCEL_ACK_TX":{"from":"ACK_TX", "to":"TX", type:"either", //rare event that ACK_RX->RX cancelled simulataneously as ACK_TX came in
+            },"CANCEL_ACK_TX":{"from":"ACK_TX", "to":"TX", type:"either", //rare event that ACK_RX->RX cancelled simulataneously as ACK_TX
                 "guard":"
                     root.child('users').child(data.child('tx_loc').val()).child('state').val() == 'RX' && 
                     root.child('users').child(data.child('tx_loc').val()).child('rx_loc').val() == $user
