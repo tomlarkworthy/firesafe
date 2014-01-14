@@ -12,9 +12,9 @@
 						/*signal*/ && newData.child('signal').val() == null
 						/*effect*/ && (
 							newData.child('item').val() == null &&
-							newData.child('tx').val() == null &&
+							newData.child('tx_itm').val() == null &&
 							newData.child('tx_loc').val() == null &&
-							newData.child('rx').val() == null &&
+							newData.child('rx_itm').val() == null &&
 							newData.child('rx_loc').val()  == null
 						)
 					)||
@@ -24,15 +24,18 @@
 						/*to    */ && newData.child('state').val() == 'TX'
 						/*signal*/ && newData.child('signal').val() == null
 						/*guards*/ && (
-							data.child('item').exists() &&
-							root.child('users').child(newData.child('tx_loc').val()).exists()
+							data.child('item').val() != null &&
+							root.child('users').child(newData.child('tx_loc').val()).child('state').val() != null &&
+							newData.child('tx_loc').val() != $user   
+							
 						)
 						/*effect*/ && (
-							newData.child('tx').val() == data.child('item').val() &&
-							newData.child('tx_loc').val() != null
+							newData.child('tx_itm').val() == data.child('item').val() &&
+							newData.child('tx_loc').val() != null &&
+							newData.child('item').val() == null
 						)
 						&& newData.child('rx_loc').val() == data.child('rx_loc').val() //lock for rx_loc
-						&& newData.child('rx').val() == data.child('rx').val() //lock for rx
+						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
 					( //2: IDLE -> RX, self
 						/*type  */($user == auth.username)
@@ -40,12 +43,13 @@
 						/*to    */ && newData.child('state').val() == 'RX'
 						/*signal*/ && newData.child('signal').val() == null
 						/*guards*/ && (
-							!data.child('item').exists() &&
+							data.child('item').val() == null &&
 							$user == root.child('users').child(newData.child('rx_loc').val()).child('tx_loc').val()
 						)
 						/*effect*/ && (
-							newData.child('rx').val() == root.child('users').child(newData.child('rx_loc').val()).child('tx').val() &&
-							newData.child('rx_loc').val() != null
+							newData.child('rx_itm').val() == root.child('users').child(newData.child('rx_loc').val()).child('tx_itm').val() &&
+							newData.child('rx_loc').val() != null &&
+							newData.child('tx_itm').val() == null
 						)
 						&& newData.child('item').val() == data.child('item').val() //lock for item
 						&& newData.child('tx_loc').val() == data.child('tx_loc').val() //lock for tx_loc
@@ -60,22 +64,62 @@
 						)
 						&& newData.child('item').val() == data.child('item').val() //lock for item
 						&& newData.child('tx_loc').val() == data.child('tx_loc').val() //lock for tx_loc
-						&& newData.child('tx').val() == data.child('tx').val() //lock for tx
+						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 						&& newData.child('rx_loc').val() == data.child('rx_loc').val() //lock for rx_loc
-						&& newData.child('rx').val() == data.child('rx').val() //lock for rx
+						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
-					( //4: RX -> ACK_RX, other
+					( //4: TX -> IDLE, self
+						/*type  */($user == auth.username)
+						/*from  */ && data.child('state').val() == 'TX'
+						/*to    */ && newData.child('state').val() == 'IDLE'
+						/*signal*/ && newData.child('signal').val() == null
+						/*guards*/ && (
+							(root.child('users').child(data.child('tx_loc').val()).child('state').val() != 'RX' &&
+							root.child('users').child(data.child('tx_loc').val()).child('state').val() != 'ACK_RX') ||(
+							root.child('users').child(data.child('tx_loc').val()).child('rx_loc').val() != $user)
+							
+						)
+						/*effect*/ && (
+							newData.child('tx_itm').val() == null &&
+							newData.child('tx_loc').val() == null &&
+							newData.child('item').val() == data.child('tx_itm').val()
+						)
+						&& newData.child('rx_loc').val() == data.child('rx_loc').val() //lock for rx_loc
+						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
+					)||
+					( //5: RX -> ACK_RX, other
 						/*type  */(auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val())
 						/*from  */ && data.child('state').val() == 'RX'
 						/*to    */ && newData.child('state').val() == 'ACK_RX'
 						/*signal*/ && newData.child('signal').val() == null
+						/*guards*/ && (
+							root.child('users').child(data.child('rx_loc').val()).child('state').val() == 'TX' && 
+							root.child('users').child(data.child('rx_loc').val()).child('tx_loc').val() == $user  
+							
+						)
 						&& newData.child('item').val() == data.child('item').val() //lock for item
 						&& newData.child('tx_loc').val() == data.child('tx_loc').val() //lock for tx_loc
-						&& newData.child('tx').val() == data.child('tx').val() //lock for tx
+						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 						&& newData.child('rx_loc').val() == data.child('rx_loc').val() //lock for rx_loc
-						&& newData.child('rx').val() == data.child('rx').val() //lock for rx
+						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
-					( //5: ACK_TX -> IDLE, either
+					( //6: RX -> IDLE, either
+						/*type  */($user == auth.username || auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val())
+						/*from  */ && data.child('state').val() == 'RX'
+						/*to    */ && newData.child('state').val() == 'IDLE'
+						/*signal*/ && newData.child('signal').val() == null
+						/*guards*/ && (
+							root.child('users').child(data.child('rx_loc').val()).child('state').val() == 'TX'
+						)
+						/*effect*/ && (
+							newData.child('rx_itm').val() == null &&
+							newData.child('rx_loc').val() == null &&
+							newData.child('item').val()   == null
+						)
+						&& newData.child('tx_loc').val() == data.child('tx_loc').val() //lock for tx_loc
+						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
+					)||
+					( //7: ACK_TX -> IDLE, either
 						/*type  */($user == auth.username || auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val())
 						/*from  */ && data.child('state').val() == 'ACK_TX'
 						/*to    */ && newData.child('state').val() == 'IDLE'
@@ -86,12 +130,28 @@
 						/*effect*/ && (
 							newData.child('item').val() == null &&
 							newData.child('tx_loc').val() == null &&
-							newData.child('tx').val() == null
+							newData.child('tx_itm').val() == null
 						)
 						&& newData.child('rx_loc').val() == data.child('rx_loc').val() //lock for rx_loc
-						&& newData.child('rx').val() == data.child('rx').val() //lock for rx
+						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
-					( //6: ACK_RX -> IDLE, either
+					( //8: ACK_TX -> TX, either
+						/*type  */($user == auth.username || auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val())
+						/*from  */ && data.child('state').val() == 'ACK_TX'
+						/*to    */ && newData.child('state').val() == 'TX'
+						/*signal*/ && newData.child('signal').val() == null
+						/*guards*/ && (
+							root.child('users').child(data.child('tx_loc').val()).child('state').val() == 'RX' && 
+							root.child('users').child(data.child('tx_loc').val()).child('rx_loc').val() == $user
+							
+						)
+						&& newData.child('item').val() == data.child('item').val() //lock for item
+						&& newData.child('tx_loc').val() == data.child('tx_loc').val() //lock for tx_loc
+						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
+						&& newData.child('rx_loc').val() == data.child('rx_loc').val() //lock for rx_loc
+						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
+					)||
+					( //9: ACK_RX -> IDLE, either
 						/*type  */($user == auth.username || auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val())
 						/*from  */ && data.child('state').val() == 'ACK_RX'
 						/*to    */ && newData.child('state').val() == 'IDLE'
@@ -101,12 +161,28 @@
 							root.child('users').child(data.child('rx_loc').val()).child('state').val() != 'ACK_TX'
 						)
 						/*effect*/ && (
-							newData.child('item').val() == data.child('rx').val()&&
+							newData.child('item').val() == data.child('rx_itm').val()&&
 							newData.child('rx_loc').val() == null &&
-							newData.child('rx').val() == null
+							newData.child('rx_itm').val() == null
 						)
 						&& newData.child('tx_loc').val() == data.child('tx_loc').val() //lock for tx_loc
-						&& newData.child('tx').val() == data.child('tx').val() //lock for tx
+						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
+					)||
+					( //10: ACK_RX -> RX, either
+						/*type  */($user == auth.username || auth.username == data.child('rx_loc').val() || auth.username == data.child('tx_loc').val())
+						/*from  */ && data.child('state').val() == 'ACK_RX'
+						/*to    */ && newData.child('state').val() == 'RX'
+						/*signal*/ && newData.child('signal').val() == null
+						/*guards*/ && (
+							root.child('users').child(data.child('rx_loc').val()).child('state').val() == 'TX' && 
+							root.child('users').child(data.child('rx_loc').val()).child('tx_loc').val() == $user
+							
+						)
+						&& newData.child('item').val() == data.child('item').val() //lock for item
+						&& newData.child('tx_loc').val() == data.child('tx_loc').val() //lock for tx_loc
+						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
+						&& newData.child('rx_loc').val() == data.child('rx_loc').val() //lock for rx_loc
+						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)
 				"
 			}
