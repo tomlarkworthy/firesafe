@@ -156,7 +156,7 @@ exports.testSendSwitchItemFail = function(test){
             state:"TX",
             item:null,
             tx_itm:"XXX",//don't own!
-            tx_loc:"receiver"
+            tx_ptr:"receiver"
         }, test)).then(test.done);
 };
 
@@ -173,7 +173,7 @@ exports.testSendWrongAddressFail = function(test){
             state:"TX",
             item:null,
             tx_itm:"GOLD",
-            tx_loc:"fsdfs" //not a user!
+            tx_ptr:"fsdfs" //not a user!
         }, test)).then(test.done);
 };
 
@@ -189,7 +189,7 @@ exports.testReceiveOutOfOrderFail = function(test){
         {
             state:"RX",
             rx_itm:"GOLD",
-            rx_loc:"sender"
+            rx_ptr:"sender"
         }, test)).then(test.done);
 };
 
@@ -207,7 +207,7 @@ exports.testSendWrongUserFail = function(test){
             state:"TX",
             item:null,
             tx_itm:"GOLD",
-            tx_loc:"receiver"
+            tx_ptr:"receiver"
         }, test)).then(test.done);
 };
 
@@ -224,7 +224,7 @@ exports.testSendInsertItemFail = function(test){
             state:"TX",
             item:"GOLD",
             tx_itm:"GOLD",
-            tx_loc:"receiver"
+            tx_ptr:"receiver"
         }, test)).then(test.done);
 };
 
@@ -241,7 +241,7 @@ exports.testSendTransition = function(test){
             state:"TX",
             item:null,
             tx_itm:"GOLD",
-            tx_loc:"receiver"
+            tx_ptr:"receiver"
         }, test)).then(test.done);
 };
 
@@ -268,7 +268,7 @@ exports.testReceiveCheatFail = function(test){
         {
             state:"RX",
             rx_itm:"XXX", //wrong!
-            rx_loc:"sender"
+            rx_ptr:"sender"
         }, test)).then(test.done);
 };
 
@@ -284,8 +284,8 @@ exports.testReceivePaddingRxFail = function(test){
         {
             state:"RX",
             rx_itm:"GOLD",
-            rx_loc:"sender",
-            tx_loc:"sender" //extra info
+            rx_ptr:"sender",
+            tx_ptr:"sender" //extra info
         }, test)).then(test.done);
 };
 
@@ -301,7 +301,7 @@ exports.testReceivePaddingItemFail = function(test){
         {
             state:"RX",
             rx_itm:"GOLD",
-            rx_loc:"sender",
+            rx_ptr:"sender",
             item:"GOLD" //extra info
         }, test)).then(test.done);
 };
@@ -318,7 +318,7 @@ exports.testAckRXOutOfOrderFail = function(test){
         {
             state:"ACK_RX",
             rx_itm:"GOLD",
-            rx_loc:"sender"
+            rx_ptr:"sender"
         }, test)).then(test.done);
 };
 
@@ -337,7 +337,7 @@ exports.testReceiveInsertTxFail = function(test){
             state:"RX",
             rx_itm:"GOLD",
             tx_itm:"GOLD",
-            rx_loc:"sender"
+            rx_ptr:"sender"
         }, test)).then(test.done);
 };*/
 
@@ -353,7 +353,7 @@ exports.testReceiveTransition = function(test){
         {
             state:"RX",
             rx_itm:"GOLD",
-            rx_loc:"sender"
+            rx_ptr:"sender"
         }, test)).then(test.done);
 };
 
@@ -411,7 +411,7 @@ exports.testAckRXWrongUserFail = function(test){
         {
             state:"ACK_RX",
             rx_itm:"GOLD",
-            rx_loc:"sender"
+            rx_ptr:"sender"
         }, test)).then(test.done);
 };
 
@@ -429,7 +429,7 @@ exports.testAckTXOutOfOrderFail = function(test){
             state:"ACK_TX",
             item:null,
             tx_itm:"GOLD",
-            tx_loc:"receiver"
+            tx_ptr:"receiver"
         }, test)).then(test.done);
 };
 
@@ -445,7 +445,7 @@ exports.testAckRXTransition = function(test){
         {
             state:"ACK_RX",
             rx_itm:"GOLD",
-            rx_loc:"sender"
+            rx_ptr:"sender"
         }, test)).then(test.done);
 };
 
@@ -502,7 +502,7 @@ exports.testAckTXTransition = function(test){
             state:"ACK_TX",
             item:null,
             tx_itm:"GOLD",
-            tx_loc:"receiver"
+            tx_ptr:"receiver"
         }, test)).then(test.done);
 };
 
