@@ -80,6 +80,8 @@ A cross tree transaction should either 1. occur, or 2. error and rollback. For a
 
 Each user is either IDLE, sending an item (TX) or receiving an item (RX). Furthermore, the one partner in the trade must acknowledge the other's actions in a 2-phase commit, so some additional acknowledgement states are required (ACK_RX, ACK_TX).
 
+![send_item_lhs_picture](http://tomlarkworthy.github.io/firesafe/doc/send_item_interaction.svg)
+
 ![send_item_lhs_picture](/doc/send_item_interaction.svg)
 
 Although both trading partners are both users, and thus running exactly the same state machine protocol, it is very difficult to visualise all the interactions without explicitly treating the receiver and sender as different state machines. Thus our first diagram is an aid to visualization. Each state is the product of both parties' state. So an individual state of the joint diagram is the state of the sender (user A) & receiver (user B).
