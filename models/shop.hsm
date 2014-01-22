@@ -1,0 +1,46 @@
+//buying items
+{
+  "rules": {
+	".read": true, //grant read access to all
+    "users": {
+      "$user":{
+        ".variables":{
+            "gold":{},
+            "swords":{},
+            "water":{}
+        },".states":{
+            "playing":{}
+        },".transition_types":{
+            "self":"$user == auth.username"
+        },".transitions":{
+            "INITIALIZE":{"from":"null", "to":"playing", type:"self",
+                    "effect":"
+                        newData.child('gold').val()==20 &&
+                        newData.child('swords').val()==0 &&
+                        newData.child('water').val()==1"
+            },"BUY_SWORD":{
+                "from":"playing", "to":"playing",
+                "type":"self",
+                "signal":"BUY_SWORD",
+                "guard":"
+                    newData.child('gold').val()>=10 &&
+                    newData.child('swords').val() <=1",
+                "effect":"
+                    newData.child('gold').val() == data.child('gold').val() - 10 &&
+                    newData.child('swords').val() == data.child('swords').val() + 1"
+            },"BUY_WATER":{
+                "from":"playing", "to":"playing",
+                "type":"self",
+                "signal":"BUY_SWORD",
+                "guard":"
+                    newData.child('gold').val()>=4 &&
+                    newData.child('water').val() <=14",
+                "effect":"
+                    newData.child('gold').val() == data.child('gold').val() - 4 &&
+                    newData.child('swords').val() == data.child('swords').val() +6"
+            }
+        }
+      }
+    }
+  }
+}

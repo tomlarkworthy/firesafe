@@ -1,0 +1,49 @@
+//an enumeration of all possible state transitions in a hierarchy, inspired by Miro Samek, direct translation of
+//David Durman's statechart repository (which is slightly different to Miro's)
+{
+    "rules": {
+        ".variables":{
+            "foo":{type:"boolean"}
+        },".states":{
+            "S0":{
+                ".init":"S1",
+                "S1":{
+                    ".init":"S11",
+                    "S11":{}
+                },
+                "S2":{
+                    ".init":"S21",
+                    "S21":{
+                        ".init":"S211",
+                        "S211":{}
+                    }
+                }
+            }
+        },".transition_types":{
+            "all":"true"
+        },".transitions":{
+            "INIT": {        to:"S0",   type:"all",
+                effect:"newData.child('foo').val() == false"},
+            "0": {from:"S0", to:"S211", type:"all", signal:"E"},
+            "1": {from:"S1", to:"S1",   type:"all", signal:"A"},
+            "2": {from:"S1", to:"S11",  type:"all", signal:"B"},
+            "3": {from:"S1", to:"S2",   type:"all", signal:"C"},
+            "4": {from:"S1", to:"S0",   type:"all", signal:"D"},
+            "5": {from:"S1", to:"S211", type:"all", signal:"F"},
+            "6": {from:"S11",to:"S211", type:"all", signal:"G"},
+            "7": {from:"S11",to:"S11",  type:"all", signal:"H",
+                guard :"data.child('foo').val() == true",
+                effect:"newData.child('foo').val() == false"
+            },
+            "8": {from:"S2",  to:"S1",  type:"all", signal:"C"},
+            "9": {from:"S2",  to:"S11", type:"all", signal:"F"},
+            "10":{from:"S21", to:"S211",type:"all", signal:"B"},
+            "11":{from:"S21", to:"S21", type:"all", signal:"H",
+                guard :"data.child('foo').val() == false",
+                effect:"newData.child('foo').val() == true"
+            },
+            "12":{from:"S211", to:"S21",type:"all", signal:"D"},
+            "13":{from:"S211", to:"S0", type:"all", signal:"G"}
+        }
+    }
+}

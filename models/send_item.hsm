@@ -1,0 +1,99 @@
+//sending an item securely using a 2 phase commit, writing in candidate diagram language about nested heirachical state machines
+{
+  "rules": {
+	".read": true, //grant read access to all
+    "users": {
+      "$user":{
+        ".variables":{
+            "item":{},
+            "tx_ptr":{},
+            "tx_itm":{},
+            "rx_ptr":{},
+            "rx_itm":{}
+        },".states":{
+            "IDLE":{},
+            "TX":{},
+            "RX":{},
+            "ACK_TX":{},
+            "ACK_RX":{}
+        },".transition_types":{
+            "self":"$user == auth.username",
+            "other":"auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val()",
+            "either":"$user == auth.username || auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val()"
+        },".transitions":{
+            "INITIALIZE":{"from":"null", "to":"IDLE", type:"self",
+                    "effect":"
+                        newData.child('item').val() == null &&
+                        newData.child('tx_itm').val() == null &&
+                        newData.child('tx_ptr').val() == null &&
+                        newData.child('rx_itm').val() == null &&
+                        newData.child('rx_ptr').val()  == null"
+            },"SEND":{"from":"IDLE", "to":"TX", type:"self",
+                "guard":"
+                    data.child('item').val() != null &&
+                    root.child('users').child(newData.child('tx_ptr').val()).child('state').val() != null &&
+                    newData.child('tx_ptr').val() != $user", //bug discovered during FM, can't send to self
+                "effect":"
+                    newData.child('tx_itm').val() == data.child('item').val() &&
+                    newData.child('tx_ptr').val() != null &&
+                    newData.child('item').val() == null"
+            },"RECEIVE":{"from":"IDLE", "to":"RX", type:"self",
+                "guard":"
+                    data.child('item').val() == null &&
+                    $user == root.child('users').child(newData.child('rx_ptr').val()).child('tx_ptr').val()",
+                "effect":"
+                    newData.child('rx_itm').val() == root.child('users').child(newData.child('rx_ptr').val()).child('tx_itm').val() &&
+                    newData.child('rx_ptr').val() != null &&
+                    newData.child('tx_itm').val() == null" //locking bug fix
+            },"ACK_RX":{"from":"RX", "to":"ACK_RX", type:"other",
+				"guard":"
+                    root.child('users').child(data.child('rx_ptr').val()).child('state').val() == 'TX' && //bug discovered during FM, check other hasn't cancelled
+                    root.child('users').child(data.child('rx_ptr').val()).child('tx_ptr').val() == $user" //and they are sending to us, otherwise sender can swap recipient
+            },"ACK_TX":{"from":"TX", "to":"ACK_TX", type:"other",
+                "guard":"
+                    root.child('users').child(newData.child('tx_ptr').val()).child('state').val() == 'ACK_RX'"
+            },"COMMIT_TX":{"from":"ACK_TX", "to":"IDLE", type:"either",
+                "guard":"
+                    root.child('users').child(data.child('tx_ptr').val()).child('state').val() == 'ACK_RX'",
+                "effect":"
+                    newData.child('item').val() == null &&
+                    newData.child('tx_ptr').val() == null &&
+                    newData.child('tx_itm').val() == null"
+            },"COMMIT_RX":{"from":"ACK_RX", "to":"IDLE", type:"either",
+                "guard":"
+                    root.child('users').child(data.child('rx_ptr').val()).child('state').val() != 'TX' &&
+                    root.child('users').child(data.child('rx_ptr').val()).child('state').val() != 'ACK_TX'",
+                "effect":"
+                    newData.child('item').val() == data.child('rx_itm').val()&&
+                    newData.child('rx_ptr').val() == null &&
+                    newData.child('rx_itm').val() == null"
+            },"CANCEL_TX":{"from":"TX", "to":"IDLE", type:"self",
+                "guard":"
+                    (root.child('users').child(data.child('tx_ptr').val()).child('state').val() != 'RX' &&
+                    root.child('users').child(data.child('tx_ptr').val()).child('state').val() != 'ACK_RX') ||(
+						root.child('users').child(data.child('tx_ptr').val()).child('rx_ptr').val() != $user)",
+                "effect":"
+                    newData.child('tx_itm').val() == null &&
+                    newData.child('tx_ptr').val() == null &&
+                    newData.child('item').val() == data.child('tx_itm').val()"
+            },"CANCEL_RX":{"from":"RX", "to":"IDLE", type:"either",
+                "guard":"
+                    root.child('users').child(data.child('rx_ptr').val()).child('state').val() == 'TX'",
+                "effect":"
+                    newData.child('rx_itm').val() == null &&
+                    newData.child('rx_ptr').val() == null &&
+                    newData.child('item').val()   == null"
+            },"CANCEL_ACK_RX":{"from":"ACK_RX", "to":"RX", type:"either",
+                "guard":"
+                    root.child('users').child(data.child('rx_ptr').val()).child('state').val() == 'TX' && 
+                    root.child('users').child(data.child('rx_ptr').val()).child('tx_ptr').val() == $user"
+            },"CANCEL_ACK_TX":{"from":"ACK_TX", "to":"TX", type:"either", //rare event that ACK_RX->RX cancelled simultaneously as ACK_TX
+                "guard":"
+                    root.child('users').child(data.child('tx_ptr').val()).child('state').val() == 'RX' && 
+                    root.child('users').child(data.child('tx_ptr').val()).child('rx_ptr').val() == $user"
+            }
+        }
+      }
+    }
+  }
+}
