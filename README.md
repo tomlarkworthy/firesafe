@@ -191,7 +191,7 @@ Additional rollback transitions are required so that either party can back out i
 
 While it is natural to develop the protocol using two distinct state machines, in reality the user state machine is identical for both parties. In the following diagram we re-roll the joint diagram into a single HSM ready for code generation. (todo: update diagram with latest notation)
 
-![complete protocol](http://tomlarkworthy.github.io/firesafe/doc/send_item.svg)
+![complete protocol](http://tomlarkworthy.github.io/firesafe/models/send_item.svg)
 
 We do not make any promises about the correctness of this protocol... yet. In particular, we are not sure whether a deadlock can exist when the sender quickly moves on to a different trade with a another user. However, verifying the protocols is a high priority for Firesafe, so sign up to our announcements if this is important to you https://groups.google.com/forum/?hl=en-GB#!forum/firesafe-announce
 
