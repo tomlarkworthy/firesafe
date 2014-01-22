@@ -82,10 +82,6 @@ Each user is either IDLE, sending an item (TX) or receiving an item (RX). Furthe
 
 ![send_item_lhs_picture](http://tomlarkworthy.github.io/firesafe/doc/send_item_interaction.svg)
 
-![send_item_lhs_picture](/doc/send_item_interaction.svg)
-
-Although both trading partners are both users, and thus running exactly the same state machine protocol, it is very difficult to visualise all the interactions without explicitly treating the receiver and sender as different state machines. Thus our first diagram is an aid to visualization. Each state is the product of both parties' state. So an individual state of the joint diagram is the state of the sender (user A) & receiver (user B).
-
 Our protocol is split into several stages. First, the sender indicates he wants to send a specific item to a specific player, by transitioning to the TX state. They *must* move the item out of the item slot and into their tx slot used internally for the protocol  (for illustration we are sending "GOLD"). They indicate who they are sending to by writing the target username into the tx_loc slot, which acts like a pointer to stop disinterested parties from being involved.
 
 ```
@@ -195,7 +191,7 @@ Additional rollback transitions are required so that either party can back out i
 
 While it is natural to develop the protocol using two distinct state machines, in reality the user state machine is identical for both parties. In the following diagram we re-roll the joint diagram into a single HSM ready for code generation. (todo: update diagram with latest notation)
 
-![send_item_rhs_picture](/doc/send_item_rhs.png)
+![complete protocol](http://tomlarkworthy.github.io/firesafe/doc/send_item.svg)
 
 We do not make any promises about the correctness of this protocol... yet. In particular, we are not sure whether a deadlock can exist when the sender quickly moves on to a different trade with a another user. However, verifying the protocols is a high priority for Firesafe, so sign up to our announcements if this is important to you https://groups.google.com/forum/?hl=en-GB#!forum/firesafe-announce
 
