@@ -28,7 +28,7 @@ block_item
 
 identifier
   = "\"" prefix:("$"/"."/"")characters:[A-z0-9]+ "\""  { return prefix+characters.join(""); }
-  /      prefix:("$"/"."/"")characters:[A-z0-9]+       { return prefix+characters.join(""); }
+
 
 literal
   = "true"    {return {"!type":"BOOL", val:true}; }

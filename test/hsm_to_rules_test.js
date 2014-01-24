@@ -27,6 +27,7 @@ exports.testSendItemConversion = function(test){
         });
 
     }catch(e){
+        console.log("\n", e)
         console.log("\n", e.message);
         console.log("\n", e.stack);
         test.ok(false, "should not have errors");
