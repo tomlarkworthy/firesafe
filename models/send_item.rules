@@ -11,11 +11,11 @@
 						/*to    */ && newData.child('state').val() == 'IDLE'
 						/*signal*/ && newData.child('signal').val() == null
 						/*effect*/ && (
-							newData.child('item').val() == null &&
+							newData.child('item').val()   == null &&
 							newData.child('tx_itm').val() == null &&
 							newData.child('tx_ptr').val() == null &&
 							newData.child('rx_itm').val() == null &&
-							newData.child('rx_ptr').val()  == null
+							newData.child('rx_ptr').val() == null
 						)
 					)||
 					( //1: IDLE -> TX, self

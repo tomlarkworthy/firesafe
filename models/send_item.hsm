@@ -23,11 +23,11 @@
         },".transitions":{
             "INITIALIZE":{"from":"null", "to":"IDLE","type":"self",
                     "effect":"
-                        newData.child('item').val() == null &&
+                        newData.child('item').val()   == null &&
                         newData.child('tx_itm').val() == null &&
                         newData.child('tx_ptr').val() == null &&
                         newData.child('rx_itm').val() == null &&
-                        newData.child('rx_ptr').val()  == null"
+                        newData.child('rx_ptr').val() == null"
             },"SEND":{"from":"IDLE", "to":"TX","type":"self",
                 "guard":"
                     data.child('item').val() != null &&

@@ -13,7 +13,7 @@
         },".transition_types":{
             "self":"$user == auth.username"
         },".transitions":{
-            "INITIALIZE":{"from":"null", "to":"playing", type:"self",
+            "INITIALIZE":{"from":"null", "to":"playing", "type":"self",
                     "effect":"
                         newData.child('gold').val()==20 &&
                         newData.child('swords').val()==0 &&
