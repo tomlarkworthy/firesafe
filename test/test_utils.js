@@ -36,6 +36,7 @@ exports.assert_admin_can_write = function(where, value, test){
     return def;
 };
 
+
 exports.assert_can_read = function(who, where, expected, test){
     var $ = require('jquery-deferred');
     var def = $.Deferred();

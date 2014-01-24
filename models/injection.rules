@@ -1,0 +1,11 @@
+{
+    "rules":{
+        ".read":true,
+        ".write":false,
+        "users":{
+            "$username":{
+                ".write":"root.child($username).exists()"
+            }
+        }
+    }
+}

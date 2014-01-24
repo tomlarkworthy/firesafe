@@ -1,0 +1,10 @@
+{
+    "users":{
+        "fred":{
+            "data":"fred_secret"
+        },
+        "fred/data":{
+              "data":"fred/data_secret"
+        }
+    }
+}
