@@ -5,11 +5,11 @@
     "users": {
       "$user":{
         ".variables":{
-            "item":{},
-            "tx_ptr":{},
-            "tx_itm":{},
-            "rx_ptr":{},
-            "rx_itm":{}
+            "rx_ptr":{".type":"$user"},
+            "tx_ptr":{".type":"$user"},
+            "item":  {".type":"$item"},
+            "tx_itm":{".type":"$item"},
+            "rx_itm":{".type":"$item"}
         },".states":{
             "IDLE":{},
             "TX":{},

@@ -50,8 +50,8 @@
 							newData.child('rx_ptr').val() != null &&
 							newData.child('tx_itm').val() == null
 						)
-						&& newData.child('item').val() == data.child('item').val() //lock for item
 						&& newData.child('tx_ptr').val() == data.child('tx_ptr').val() //lock for tx_ptr
+						&& newData.child('item').val() == data.child('item').val() //lock for item
 					)||
 					( //3: TX -> ACK_TX, other
 						/*type  */(auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
@@ -61,10 +61,10 @@
 						/*guards*/ && (
 							root.child('users').child(newData.child('tx_ptr').val()).child('state').val() == 'ACK_RX'
 						)
-						&& newData.child('item').val() == data.child('item').val() //lock for item
-						&& newData.child('tx_ptr').val() == data.child('tx_ptr').val() //lock for tx_ptr
-						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 						&& newData.child('rx_ptr').val() == data.child('rx_ptr').val() //lock for rx_ptr
+						&& newData.child('tx_ptr').val() == data.child('tx_ptr').val() //lock for tx_ptr
+						&& newData.child('item').val() == data.child('item').val() //lock for item
+						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
 					( //4: TX -> IDLE, self
@@ -94,10 +94,10 @@
 							root.child('users').child(data.child('rx_ptr').val()).child('state').val() == 'TX' && 
 							root.child('users').child(data.child('rx_ptr').val()).child('tx_ptr').val() == $user
 						)
-						&& newData.child('item').val() == data.child('item').val() //lock for item
-						&& newData.child('tx_ptr').val() == data.child('tx_ptr').val() //lock for tx_ptr
-						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 						&& newData.child('rx_ptr').val() == data.child('rx_ptr').val() //lock for rx_ptr
+						&& newData.child('tx_ptr').val() == data.child('tx_ptr').val() //lock for tx_ptr
+						&& newData.child('item').val() == data.child('item').val() //lock for item
+						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
 					( //6: RX -> IDLE, either
@@ -141,10 +141,10 @@
 							root.child('users').child(data.child('tx_ptr').val()).child('state').val() == 'RX' && 
 							root.child('users').child(data.child('tx_ptr').val()).child('rx_ptr').val() == $user
 						)
-						&& newData.child('item').val() == data.child('item').val() //lock for item
-						&& newData.child('tx_ptr').val() == data.child('tx_ptr').val() //lock for tx_ptr
-						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 						&& newData.child('rx_ptr').val() == data.child('rx_ptr').val() //lock for rx_ptr
+						&& newData.child('tx_ptr').val() == data.child('tx_ptr').val() //lock for tx_ptr
+						&& newData.child('item').val() == data.child('item').val() //lock for item
+						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
 					( //9: ACK_RX -> IDLE, either
@@ -173,10 +173,10 @@
 							root.child('users').child(data.child('rx_ptr').val()).child('state').val() == 'TX' && 
 							root.child('users').child(data.child('rx_ptr').val()).child('tx_ptr').val() == $user
 						)
-						&& newData.child('item').val() == data.child('item').val() //lock for item
-						&& newData.child('tx_ptr').val() == data.child('tx_ptr').val() //lock for tx_ptr
-						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 						&& newData.child('rx_ptr').val() == data.child('rx_ptr').val() //lock for rx_ptr
+						&& newData.child('tx_ptr').val() == data.child('tx_ptr').val() //lock for tx_ptr
+						&& newData.child('item').val() == data.child('item').val() //lock for item
+						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)
 				"
