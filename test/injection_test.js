@@ -45,4 +45,24 @@ exports.testAdminUnescapedKeysWrite = function(test){
     }catch(e){
         test.done()
     }
-};*/
+};
+*/
+
+/**
+ * tests you can put weird values in data base
+ * @param test
+ */
+exports.testAdminUnescapedValueWrite = function(test){
+    try{
+        var test_utils = require("../test/test_utils.js");
+        var $ = require('jquery-deferred');
+        var fs = require('fs');
+
+        var data =  JSON.parse(fs.readFileSync("./models/injection.data", "utf8"));
+        $.when(test_utils.assert_admin_can_write("/", {
+            "key":"fred/secret"
+        }, test)).then(test.done, test.done);
+    }catch(e){
+        test.done()
+    }
+};

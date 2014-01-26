@@ -1,7 +1,7 @@
 {
   "name": "firesafe",
   "description": "Compile hierarchical state machine into Firebase security rules",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "homepage": "https://github.com/tomlarkworthy/firesafe",
   "author": {

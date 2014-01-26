@@ -123,7 +123,7 @@ exports.block = function(block, prefix, types){
         return "{"+prefix + "\t" + lines.join("," + prefix + "\t") + prefix + "}";
 
     }else if(block["!type"] === "STR"){
-        return block.val;
+        return '"'+block.val+'"';
     }else if(block["!type"] === "BOOL"){
         return block.val;
     }else{
