@@ -13,8 +13,13 @@ exports.convert = function(hsm){
     //strip comments
     hsm = hsm.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '');
 
-    //convert into nested json structures, using grammar
-    var top_block =  parser.parser.parse(hsm, "block");
+    try{
+        //convert into nested json structures, using grammar
+        var top_block =  parser.parser.parse(hsm, "block");
+    }catch(e){
+        console.log(e)
+        throw e;
+    }
 
     //generate code
     var code = exports.top_block(top_block, "\n", []);
