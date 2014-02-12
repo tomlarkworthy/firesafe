@@ -8,6 +8,7 @@ module.exports = function(grunt) {
 		nodeunit: {
 			all: ['test/**/*_test.js'],
             send_item: ['test/send_item_test.js'],
+            auction: ['test/auction_test.js'],
             firebase: ['test/firebase_test.js'],
             authentication: ['test/authentication_test.js'],
             hsm_to_rules: ['test/hsm_to_rules_test.js'],

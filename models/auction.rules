@@ -1,0 +1,25 @@
+
+{
+	"rules":{
+		".read":true,
+		"auctions":{
+			"$item_id":{
+				".write":"
+					( //0: null -> SELLING, null
+						/*role  */(true)
+						/*from  */ && data.child('state').val() == null
+						/*to    */ && newData.child('state').val() == 'SELLING'
+						/*signal*/ && newData.child('signal').val() == 'sell(item_name)'
+						/*effect*/ && (
+							newData.child('name').val()     != null &&   
+							newData.child('seller').val()   == auth.username &&
+							newData.child('bid').val()      == null &&
+							newData.child('bidder').val()   == null &&
+							newData.child('modified').val() == now
+						)
+					)
+				"
+			}
+		}
+	}
+}

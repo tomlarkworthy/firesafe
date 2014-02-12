@@ -17,7 +17,7 @@ exports.convert = function(hsm){
         //convert into nested json structures, using grammar
         var top_block =  parser.parser.parse(hsm, "block");
     }catch(e){
-        console.log(e)
+        console.log(e);
         throw e;
     }
 
@@ -212,7 +212,11 @@ exports.new_machine = function(){
         }
 
         transition.to = properties.to.val;
-        transition.role = properties.role.val;
+        if(transition.role){
+            transition.role = properties.role.val;
+        }else{
+            transition.role = null;
+        }
 
         if(properties.signal){
             transition.signal = properties.signal.val;
@@ -376,7 +380,11 @@ exports.new_machine = function(){
             var clause = prefix + "\t( //" + name + ": " + transition.from + " -> " + transition.to + ", " + transition.role
 
             //add the authentication clause
-            clause += prefix +  "\t\t/*role  */("+machine.roles[transition.role] +")";
+            if(transition.role!= null){
+                clause += prefix +  "\t\t/*role  */("+machine.roles[transition.role] +")";
+            }else{
+                clause += prefix +  "\t\t/*role  */(true)";
+            }
 
             //then add the from state requirement (if any, could be initial state)
             if(transition.from!= null && transition.from != 'null'){
