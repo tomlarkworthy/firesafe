@@ -65,7 +65,7 @@ Once a player is playing, they have two options in the shop, buying a sword or w
 ```
 on their "/user/<username>" Firebase reference. The player *cannot* sneak in an update to "water" at the same time, as Firebase enforces no variable mentioned outside the effect clause can change.
 
-The final diagrammatic feature worth mentioning is the unattached red arrow. Unattached arrows on a digram denote a *transition type*. **Transitions only occur if their type clause evaluates to true, which commonly is used to express permissions**. In the shop we only allow the owner of the user record to invoke transitions. The transition type in particular is an excellent building block for complex multi-user interactions, because you can easily express that some transitions can only be performed by certain user roles.
+The final diagrammatic feature worth mentioning is the unattached red arrow. Unattached arrows on a digram denote a *transition role*. **Transitions only occur if their role clause evaluates to true, which commonly is used to express permissions**. In the shop we only allow the owner of the user record to invoke transitions. The transition role in particular is an excellent building block for complex multi-user interactions, because you can easily express that some transitions can only be performed by certain user roles.
 
 * complete hsm source file  - https://github.com/tomlarkworthy/firesafe/blob/master/models/shop.hsm
 * generated validation rules  - https://github.com/tomlarkworthy/firesafe/blob/master/models/shop.rules
@@ -132,7 +132,7 @@ newData.child('rx').val() == root.child('users').child(newData.child('rx_loc').v
 newData.child('rx_loc').val() != null"
 ```
 
-Once the receiver is ready, the sender must acknowledge the status change of the receiver. Unlike previous transitions, *The sender changes the state of the receiver*. To indicate the different roles within a state machine, we use different transition_types:
+Once the receiver is ready, the sender must acknowledge the status change of the receiver. Unlike previous transitions, *The sender changes the state of the receiver*. To indicate the different roles within a state machine, we use different transition_roles:
 
 ```
 ".roles":{
@@ -145,7 +145,7 @@ Once the receiver is ready, the sender must acknowledge the status change of the
 }
 ```
 
-We have self, other and either transition types to indicate the transition can be carried out by the owner user record, the other party in the trade, or either party. Thus, the transition rule for sender acknowledgement on the receivers state machine is:
+We have self, other and either transition roles to indicate the transition can be carried out by the owner user record, the other party in the trade, or either party. Thus, the transition rule for sender acknowledgement on the receivers state machine is:
 
 ```
 "ACK_RX":
@@ -158,12 +158,12 @@ We have self, other and either transition types to indicate the transition can b
 
 The receiver does an ACK_TX similarly on the senders machine. Once both sender and receiver have ACKed, the transaction passes the point of no return.
 
-Because either party could disconnect from Firebase at this point, we allow either party to commit the final stages of the transaction. This is indicated by setting the type to "either".
+Because either party could disconnect from Firebase at this point, we allow either party to commit the final stages of the transaction. This is indicated by setting the role to "either".
 
 The sender finalizes by setting the item, and other variables to null, double checking the other party is in the ACK_RX state (remember they are transitioning from ACK_TX too). Thus the sender can only commit once both parties have ACKed.
 
 ```
-"COMMIT_TX":{"from":"ACK_TX", "to":"IDLE", type:"either",
+"COMMIT_TX":{"from":"ACK_TX", "to":"IDLE", "role":"either",
     "guard":"
         root.child('users').child(data.child('tx_loc').val()).child('state').val() == 'ACK_RX'",
     "effect":"
@@ -176,7 +176,7 @@ The sender finalizes by setting the item, and other variables to null, double ch
 For the receiver to finalize, the receiver transitions back to the IDLE state, but copies the data in the rx slot into their item slot, thus gaining the item. Care has to be taken the COMMIT_RX is only possible after the COMMIT_TX is performed (see the guard). We do not want the COMMIT_RX to occur after the first ACK_RX but before the ACK_TX.
 
 ```
-"COMMIT_RX":{"from":"ACK_RX", "to":"IDLE", type:"either",
+"COMMIT_RX":{"from":"ACK_RX", "to":"IDLE", "role":"either",
     "guard":"
         root.child('users').child(data.child('rx_loc').val()).child('state').val() != 'TX' &&
         root.child('users').child(data.child('rx_loc').val()).child('state').val() != 'ACK_TX'",
