@@ -1,7 +1,7 @@
 /* PEG.js grammar
  * Representation of hierarchical state machines for generating validation rules
  *
- * special syntax is ".states", ".transitions", ".transition_types", ".variables"
+ * special syntax is ".states", ".transitions", ".roles", ".variables"
  * we do not process ".write" if a machine is defined
  * you are free to add read and validate where you like
  */

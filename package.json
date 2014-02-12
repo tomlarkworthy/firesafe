@@ -9,7 +9,7 @@
       "email": "tom.larkworthy@gmail.com"
   },
   "repository": {
-      "type": "git",
+      "role": "git",
       "url": "git://github.com/tomlarkworthy/firesafe.git"
   },
   "bugs": {
@@ -17,10 +17,10 @@
   },
   "licenses": [
       {
-          "type": "GPL-3.0+",
+          "role": "GPL-3.0+",
           "url": "https://github.com/tomlarkworthy/firesafe/blob/master/LICENSE.txt"
       },{
-          "type": "Firesafe",
+          "role": "Firesafe",
           "url": "https://github.com/tomlarkworthy/firesafe/blob/master/COPYING.txt"
       }
   ],

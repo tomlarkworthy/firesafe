@@ -96,9 +96,9 @@ exports.block = function(block, prefix, types){
             machine.process_transitions(block['val'][".transitions"]);
         }
 
-        if(block['val'][".transition_types"]){
+        if(block['val'][".roles"]){
             if(machine == null) machine = exports.new_machine();
-            machine.process_types(block['val'][".transition_types"])
+            machine.process_roles(block['val'][".roles"])
         }
 
         for (var key in block['val']) {
@@ -108,7 +108,7 @@ exports.block = function(block, prefix, types){
             }else if(key === ".states"){
             }else if(key === ".variables"){ //ignore all the machine special syntax
             }else if(key === ".transitions"){
-            }else if(key === ".transition_types"){
+            }else if(key === ".roles"){
             }else if(key === ".types"){
             }else{
                 lines.push('"'+key +'"'+':' + exports.block(block['val'][key], prefix + "\t", types));
@@ -137,7 +137,7 @@ exports.new_machine = function(){
         states:{}, //map from name -> {parent, init}
         transitions:{},
         variables:{},
-        types:{},
+        roles:{},
         signals:{},//all possible signals encountered
         initial:null
     };
@@ -207,7 +207,7 @@ exports.new_machine = function(){
         }
 
         transition.to = properties.to.val;
-        transition.type = properties.type.val;
+        transition.role = properties.role.val;
 
         if(properties.signal){
             transition.signal = properties.signal.val;
@@ -232,10 +232,10 @@ exports.new_machine = function(){
         //console.log("\ntransition:", transition);
     };
 
-    machine.process_types = function(types_parse_obj){
+    machine.process_roles = function(types_parse_obj){
         //console.log("\ntypes_parse_obj:", types_parse_obj);
         for(var name in types_parse_obj.val){
-            machine.types[name] = types_parse_obj.val[name].val;
+            machine.roles[name] = types_parse_obj.val[name].val;
         }
         //console.log("\nmachine.types:", machine.types);
     };
@@ -260,7 +260,7 @@ exports.new_machine = function(){
                 flat_transitions[uid] = {
                     from:null,
                     to:target,
-                    type:transition.type,
+                    role:transition.role,
                     signal:transition.signal,
                     guard:transition.guard,
                     effect:transition.effect
@@ -281,7 +281,7 @@ exports.new_machine = function(){
                         flat_transitions[uid] = {
                             from:from,
                             to:target,
-                            type:transition.type,
+                            role:transition.role,
                             signal:signal,
                             guard:transition.guard,
                             effect:transition.effect
@@ -298,7 +298,7 @@ exports.new_machine = function(){
                     flat_transitions[uid] = {
                         from:from,
                         to:target,
-                        type:transition.type,
+                        role:transition.role,
                         signal:null,
                         guard:transition.guard,
                         effect:transition.effect
@@ -368,10 +368,10 @@ exports.new_machine = function(){
             var transition = machine.transitions[name];
 
             //first add a comment
-            var clause = prefix + "\t( //" + name + ": " + transition.from + " -> " + transition.to + ", " + transition.type
+            var clause = prefix + "\t( //" + name + ": " + transition.from + " -> " + transition.to + ", " + transition.role
 
             //add the authentication clause
-            clause += prefix +  "\t\t/*type  */("+machine.types[transition.type] +")";
+            clause += prefix +  "\t\t/*role  */("+machine.roles[transition.role] +")";
 
             //then add the from state requirement (if any, could be initial state)
             if(transition.from!= null && transition.from != 'null'){

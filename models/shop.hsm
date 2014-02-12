@@ -10,17 +10,17 @@
             "water":{}
         },".states":{
             "playing":{}
-        },".transition_types":{
+        },".roles":{
             "self":"$user == auth.username"
         },".transitions":{
-            "INITIALIZE":{"from":"null", "to":"playing", "type":"self",
+            "INITIALIZE":{"from":"null", "to":"playing", "role":"self",
                     "effect":"
                         newData.child('gold').val()==20 &&
                         newData.child('swords').val()==0 &&
                         newData.child('water').val()==1"
             },"BUY_SWORD":{
                 "from":"playing", "to":"playing",
-                "type":"self",
+                "role":"self",
                 "signal":"BUY_SWORD",
                 "guard":"
                     newData.child('gold').val()>=10 &&
@@ -30,7 +30,7 @@
                     newData.child('swords').val() == data.child('swords').val() + 1"
             },"BUY_WATER":{
                 "from":"playing", "to":"playing",
-                "type":"self",
+                "role":"self",
                 "signal":"BUY_SWORD",
                 "guard":"
                     newData.child('gold').val()>=4 &&

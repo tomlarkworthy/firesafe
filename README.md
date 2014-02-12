@@ -135,7 +135,7 @@ newData.child('rx_loc').val() != null"
 Once the receiver is ready, the sender must acknowledge the status change of the receiver. Unlike previous transitions, *The sender changes the state of the receiver*. To indicate the different roles within a state machine, we use different transition_types:
 
 ```
-".transition_types":{
+".roles":{
     "self":"$user == auth.username",
     "other":"auth.username == data.child('rx_loc').val() ||
         auth.username == data.child('tx_loc').val()",
@@ -152,7 +152,7 @@ We have self, other and either transition types to indicate the transition can b
 {
     "from":"RX",
     "to":"ACK_RX",
-    "type":"other"
+    "role":"other"
 }"
 ```
 

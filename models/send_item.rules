@@ -6,7 +6,7 @@
 			"$user":{
 				".write":"
 					( //0: null -> IDLE, self
-						/*type  */($user == auth.username)
+						/*role  */($user == auth.username)
 						/*from  */ && data.child('state').val() == null
 						/*to    */ && newData.child('state').val() == 'IDLE'
 						/*signal*/ && newData.child('signal').val() == null
@@ -19,7 +19,7 @@
 						)
 					)||
 					( //1: IDLE -> TX, self
-						/*type  */($user == auth.username)
+						/*role  */($user == auth.username)
 						/*from  */ && data.child('state').val() == 'IDLE'
 						/*to    */ && newData.child('state').val() == 'TX'
 						/*signal*/ && newData.child('signal').val() == null
@@ -37,7 +37,7 @@
 						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
 					( //2: IDLE -> RX, self
-						/*type  */($user == auth.username)
+						/*role  */($user == auth.username)
 						/*from  */ && data.child('state').val() == 'IDLE'
 						/*to    */ && newData.child('state').val() == 'RX'
 						/*signal*/ && newData.child('signal').val() == null
@@ -54,7 +54,7 @@
 						&& newData.child('item').val() == data.child('item').val() //lock for item
 					)||
 					( //3: TX -> ACK_TX, other
-						/*type  */(auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
+						/*role  */(auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
 						/*from  */ && data.child('state').val() == 'TX'
 						/*to    */ && newData.child('state').val() == 'ACK_TX'
 						/*signal*/ && newData.child('signal').val() == null
@@ -68,7 +68,7 @@
 						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
 					( //4: TX -> IDLE, self
-						/*type  */($user == auth.username)
+						/*role  */($user == auth.username)
 						/*from  */ && data.child('state').val() == 'TX'
 						/*to    */ && newData.child('state').val() == 'IDLE'
 						/*signal*/ && newData.child('signal').val() == null
@@ -86,7 +86,7 @@
 						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
 					( //5: RX -> ACK_RX, other
-						/*type  */(auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
+						/*role  */(auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
 						/*from  */ && data.child('state').val() == 'RX'
 						/*to    */ && newData.child('state').val() == 'ACK_RX'
 						/*signal*/ && newData.child('signal').val() == null
@@ -101,7 +101,7 @@
 						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
 					( //6: RX -> IDLE, either
-						/*type  */($user == auth.username || auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
+						/*role  */($user == auth.username || auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
 						/*from  */ && data.child('state').val() == 'RX'
 						/*to    */ && newData.child('state').val() == 'IDLE'
 						/*signal*/ && newData.child('signal').val() == null
@@ -117,7 +117,7 @@
 						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 					)||
 					( //7: ACK_TX -> IDLE, either
-						/*type  */($user == auth.username || auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
+						/*role  */($user == auth.username || auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
 						/*from  */ && data.child('state').val() == 'ACK_TX'
 						/*to    */ && newData.child('state').val() == 'IDLE'
 						/*signal*/ && newData.child('signal').val() == null
@@ -133,7 +133,7 @@
 						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
 					( //8: ACK_TX -> TX, either
-						/*type  */($user == auth.username || auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
+						/*role  */($user == auth.username || auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
 						/*from  */ && data.child('state').val() == 'ACK_TX'
 						/*to    */ && newData.child('state').val() == 'TX'
 						/*signal*/ && newData.child('signal').val() == null
@@ -148,7 +148,7 @@
 						&& newData.child('rx_itm').val() == data.child('rx_itm').val() //lock for rx_itm
 					)||
 					( //9: ACK_RX -> IDLE, either
-						/*type  */($user == auth.username || auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
+						/*role  */($user == auth.username || auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
 						/*from  */ && data.child('state').val() == 'ACK_RX'
 						/*to    */ && newData.child('state').val() == 'IDLE'
 						/*signal*/ && newData.child('signal').val() == null
@@ -165,7 +165,7 @@
 						&& newData.child('tx_itm').val() == data.child('tx_itm').val() //lock for tx_itm
 					)||
 					( //10: ACK_RX -> RX, either
-						/*type  */($user == auth.username || auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
+						/*role  */($user == auth.username || auth.username == data.child('rx_ptr').val() || auth.username == data.child('tx_ptr').val())
 						/*from  */ && data.child('state').val() == 'ACK_RX'
 						/*to    */ && newData.child('state').val() == 'RX'
 						/*signal*/ && newData.child('signal').val() == null
