@@ -1,0 +1,188 @@
+<body>
+    <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+
+    <style>
+        g.node {
+            font-family: Verdana, Helvetica;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        circle.node-dot {
+            fill: lightsalmon;
+            stroke: red;
+            stroke-width: 1px;
+        }
+
+        path.link {
+            fill: none;
+            stroke: gray;
+        }
+    </style>
+
+
+    This is a prototype to find a better visualisation for JSON data using D3. Its clearly needs some work, e.g. new line breaks in SVG
+    <div id="tree-container"></div>
+
+
+    <script>
+        /**
+         * Created by JetBrains RubyMine.
+         * User: pavanpodila
+         * Date: 7/17/11
+         * Time: 4:30 PM
+         * To change this template use File | Settings | File Templates.
+         */
+
+        var rules = {
+            "rules": {
+                ".read": true, //grant read access to all
+                "users": {
+                    "$user":{
+                        ".variables":{
+                            "gold":{},
+                            "swords":{},
+                            "water":{}
+                        },".states":{
+                            "playing":{},
+                            "offline":{}
+                        },".transition_types":{
+                            "self":"$user == auth.username"
+                        },".transitions":{
+                            "INITIALIZE":{"from":"null", "to":"playing", "type":"self",
+                                "effect":"newData.child('gold').val()==20 && newData.child('swords').val()==0 && \nnewData.child('water').val()==1"
+                            },"BUY_SWORD":{
+                                "from":"playing", "to":"playing",
+                                "type":"self",
+                                "signal":"BUY_SWORD",
+                                "guard":"newData.child('gold').val()>=10 &&\n newData.child('swords').val() <=1",
+                                "effect":"newData.child('gold').val() == data.child('gold').val() - 10 && \nnewData.child('swords').val() == data.child('swords').val() + 1"
+                            },"BUY_WATER":{
+                                "from":"playing", "to":"playing",
+                                        "type":"self",
+                                        "signal":"BUY_SWORD",
+                                        "guard":"newData.child('gold').val()>=4 &&\n newData.child('water').val() <=14",
+                                "effect":" newData.child('gold').val() == data.child('gold').val() - 4 && \nnewData.child('swords').val() == data.child('swords').val() +6"
+                            }
+                        }
+                     }
+                }
+            }
+        };
+
+
+        var toD3 = function(node, name){
+            var d3 = {};
+            d3.name = name;
+            if(node instanceof Object){
+                d3.children = [];
+                for (var child_name in node){
+                    d3.children.push(toD3(node[child_name], child_name));
+                }
+            }else{
+                d3.value = node;
+            }
+
+            d3.hieght = 1;
+            return d3;
+        };
+
+        var treeData = toD3(rules);
+
+        function buildTree(containerName, customOptions)
+        {
+            // build the options object
+            var options = $.extend({
+                nodeRadius: 6, fontSize: 12
+            }, customOptions);
+
+            var maxLabelLength = 10;
+
+            // size of the diagram
+            var size = { width:1000, height: 1000};
+
+            var tree = d3.layout.tree();
+            tree.sort(null);
+            tree.size([800, 600]);
+            tree.separation(function(a, b){
+                if(a.parent === b.parent) return (a.hieght);
+                else return (a.hieght + 1);
+            });
+            var nodes = tree.nodes(treeData);
+            var links = tree.links(nodes);
+
+
+            /*
+             <svg>
+             <g class="container" />
+             </svg>
+             */
+            var layoutRoot = d3.select(containerName)
+                    .append("svg:svg").attr("width", size.width).attr("height", size.height)
+                    .append("svg:g")
+                    .attr("class", "container")
+                    .attr("transform", "translate(" + maxLabelLength + ",0)");
+
+
+            // Edges between nodes as a <path class="link" />
+            var link = d3.svg.diagonal()
+                    .projection(function(d)
+                    {
+                        return [d.y, d.x];
+                    });
+
+            layoutRoot.selectAll("path.link")
+                    .data(links)
+                    .enter()
+                    .append("svg:path")
+                    .attr("class", "link")
+                    .attr("d", link);
+
+
+            /*
+             Nodes as
+             <g class="node">
+             <circle class="node-dot" />
+             <text />
+             </g>
+             */
+            var nodeGroup = layoutRoot.selectAll("g.node")
+                    .data(nodes)
+                    .enter()
+                    .append("svg:g")
+                    .attr("class", "node")
+                    .attr("transform", function(d)
+                    {
+                        return "translate(" + d.y + "," + d.x + ")";
+                    });
+
+            nodeGroup.append("svg:circle")
+                    .attr("class", "node-dot")
+                    .attr("r", options.nodeRadius);
+
+            nodeGroup.append("svg:text")
+                    .attr("text-anchor", function(d)
+                    {
+                        return "start";
+                    })
+                    .attr("dx", function(d)
+                    {
+                        return 0;
+                    })
+                    .attr("dy", 3)
+                    .text(function(d)
+                    {
+                        if(d.value) return d.name + ":" + d.value
+                        return d.name;
+                    });
+
+        }
+
+    </script>
+
+    <script>
+        $(function(){
+            buildTree("#tree-container");
+        });
+    </script>
+</body>
