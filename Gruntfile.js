@@ -13,7 +13,8 @@ module.exports = function(grunt) {
             authentication: ['test/authentication_test.js'],
             hsm_to_rules: ['test/hsm_to_rules_test.js'],
             exhaustive: ['test/exhaustive_hsm_test.js'],
-            injection: ['test/injection_test.js']
+            injection: ['test/injection_test.js'],
+            closure: ['test/closure_test.js']
 		},pandoc: {
             toHtml: {
                 configs: {
