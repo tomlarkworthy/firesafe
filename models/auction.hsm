@@ -19,16 +19,25 @@
             "bidder":"$user == auth.username",
             "seller":"$item.child('seller') == auth.username"
         },".transitions":{
-            "INITIALIZE":{
+            "0":{
                 "from":"null",
                 "to":"SELLING",
-                "signal":"sell(item_name)",
+                "signal":"SELL",
                 "effect":"
                     newData.child('name').val()     != null &&   //todo, replace with newData.child('name').val() == item_name
                     newData.child('seller').val()   == auth.username &&
-                    newData.child('bid').val()      == null &&
-                    newData.child('bidder').val()   == null &&
                     newData.child('modified').val() == now"
+            },
+            "1":{
+                "from":"null",
+                "to":"SELLING",
+                "signal":"sell(item_name)",
+                "execute":'
+                    return {
+                        "name":item_name,
+                        "modified":now,
+                        "seller":auth.username,
+                    };'
             }
         }
       }

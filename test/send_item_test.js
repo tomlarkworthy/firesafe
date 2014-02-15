@@ -6,6 +6,11 @@
  */
 
 
+var firebase_io = require('../src/firebase_io.js');
+var test_utils = require("../test/test_utils.js");
+var $ = require('jquery-deferred');
+var fs = require('fs');
+
 //the important strictly ordered stages in executing a trade
 var IDLE_IDLE_checkpoint,
     TX_IDLE_checkpoint,
@@ -14,17 +19,12 @@ var IDLE_IDLE_checkpoint,
     ACK_TX_ACK_RX_checkpoint; //after double ack either party should be able to update their inventory, so ordering back to IDLE is indeterminate
 
 
-
 /**********************************************************************************************************************
  * INITIAL RULES
  *********************************************************************************************************************
  * Send the hand crafted rules to Firebase, important this occurs first to setup test suite with the rules we want to test
  */
 exports.testWriteSendXRulesValid = function(test){
-    var firebase_io = require('../src/firebase_io.js');
-    var $ = require('jquery-deferred');
-    var fs = require('fs');
-
     //load rules as hsm file
     var hsm_def = fs.readFileSync("./models/send_item.hsm", "utf8");
 
@@ -56,9 +56,6 @@ exports.testWriteSendXRulesValid = function(test){
  * @param test
  */
 exports.testAdminWrite = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_admin_can_write("/",
         {users:{
             sender:{
@@ -80,9 +77,6 @@ exports.testAdminWrite = function(test){
  * @param test
  */
 exports.testInitializationInvalidFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"IDLE",
@@ -95,9 +89,6 @@ exports.testInitializationInvalidFail = function(test){
  * @param test
  */
 exports.testInitialization = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_can_write("receiver", "/users/receiver",
         {
             state:"IDLE"
@@ -109,9 +100,6 @@ exports.testInitialization = function(test){
  * @param test
  */
 exports.testReInitializationFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"IDLE"
@@ -122,8 +110,6 @@ exports.testReInitializationFail = function(test){
  * BOTH PLAYERS ARE INITIALIZED
  *********************************************************************************************************************/
 exports.testIDLE_IDLE_checkpoint = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
     $.when(IDLE_IDLE_checkpoint = test_utils.checkpoint(test)).then(function(){
         test.done();
     });
@@ -134,9 +120,6 @@ exports.testIDLE_IDLE_checkpoint = function(test){
  * @param test
  */
 exports.testSendIncompleteFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("sender", "/users/sender",
         {
             state:"TX"
@@ -148,9 +131,6 @@ exports.testSendIncompleteFail = function(test){
  * @param test
  */
 exports.testSendSwitchItemFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("sender", "/users/sender",
         {
             state:"TX",
@@ -165,9 +145,6 @@ exports.testSendSwitchItemFail = function(test){
  * @param test
  */
 exports.testSendWrongAddressFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("sender", "/users/sender",
         {
             state:"TX",
@@ -182,9 +159,6 @@ exports.testSendWrongAddressFail = function(test){
  * @param test
  */
 exports.testReceiveOutOfOrderFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"RX",
@@ -199,9 +173,6 @@ exports.testReceiveOutOfOrderFail = function(test){
  * @param test
  */
 exports.testSendWrongUserFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("receiver", "/users/sender", //wrong user
         {
             state:"TX",
@@ -216,9 +187,6 @@ exports.testSendWrongUserFail = function(test){
  * @param test
  */
 exports.testSendInsertItemFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("sender", "/users/sender",
         {
             state:"TX",
@@ -233,9 +201,6 @@ exports.testSendInsertItemFail = function(test){
  * @param test
  */
 exports.testSendTransition = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_can_write("sender", "/users/sender",
         {
             state:"TX",
@@ -249,8 +214,6 @@ exports.testSendTransition = function(test){
  * SENDER IS READY TO SEND
  *********************************************************************************************************************/
 exports.testTX_IDLE_checkpoint = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
     $.when(TX_IDLE_checkpoint = test_utils.checkpoint(test)).then(function(){
         test.done();
     });
@@ -261,9 +224,6 @@ exports.testTX_IDLE_checkpoint = function(test){
  * @param test
  */
 exports.testReceiveCheatFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"RX",
@@ -277,9 +237,6 @@ exports.testReceiveCheatFail = function(test){
  * @param test
  */
 exports.testReceivePaddingRxFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"RX",
@@ -294,9 +251,6 @@ exports.testReceivePaddingRxFail = function(test){
  * @param test
  */
 exports.testReceivePaddingItemFail = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"RX",
@@ -311,9 +265,6 @@ exports.testReceivePaddingItemFail = function(test){
  * @param test
  */
 exports.testAckRXOutOfOrderFail = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("sender", "/users/receiver",
         {
             state:"ACK_RX",
@@ -346,9 +297,6 @@ exports.testReceiveInsertTxFail = function(test){
  * @param test
  */
 exports.testReceiveTransition = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_can_write("receiver", "/users/receiver",
         {
             state:"RX",
@@ -361,8 +309,6 @@ exports.testReceiveTransition = function(test){
  * RECEIVER IS READY TO RECEIVE
  *********************************************************************************************************************/
 exports.testTX_RX_checkpoint = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
     $.when(TX_RX_checkpoint = test_utils.checkpoint(test)).then(function(){
         test.done();
     });
@@ -376,9 +322,6 @@ exports.testTX_RX_checkpoint = function(test){
  * @param test
  */
 exports.testAckRXEmptyFail = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("sender", "/users/receiver",
         {
         }, test)).then(test.done);
@@ -389,9 +332,6 @@ exports.testAckRXEmptyFail = function(test){
  * @param test
  */
 exports.testAckRXIncompleteFail = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("sender", "/users/receiver",
         {
             state:"ACK_RX",
@@ -404,9 +344,6 @@ exports.testAckRXIncompleteFail = function(test){
  * @param test
  */
 exports.testAckRXWrongUserFail = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"ACK_RX",
@@ -421,9 +358,6 @@ exports.testAckRXWrongUserFail = function(test){
  * @param test
  */
 exports.testAckTXOutOfOrderFail = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("receiver", "/users/sender",
         {
             state:"ACK_TX",
@@ -438,9 +372,6 @@ exports.testAckTXOutOfOrderFail = function(test){
  * @param test
  */
 exports.testAckRXTransition = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_can_write("sender", "/users/receiver",
         {
             state:"ACK_RX",
@@ -453,8 +384,6 @@ exports.testAckRXTransition = function(test){
  * SENDER has ACK on receiver's data, next step if for receiver to ACK
  *********************************************************************************************************************/
 exports.testACK_TX_RX_checkpoint = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
     $.when(ACK_TX_RX_checkpoint = test_utils.checkpoint(test)).then(function(){
         test.done();
     });
@@ -465,9 +394,6 @@ exports.testACK_TX_RX_checkpoint = function(test){
  * @param test
  */
 exports.testCommitTxOutOfOrderFail = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("sender", "/users/sender",
         {
             state:"IDLE" //we have sent all our stuff
@@ -479,9 +405,6 @@ exports.testCommitTxOutOfOrderFail = function(test){
  * @param test
  */
 exports.testCommitRxOutOfOrderFail = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_cant_write("receiver", "/users/receiver",
         {
             state:"IDLE",
@@ -494,9 +417,6 @@ exports.testCommitRxOutOfOrderFail = function(test){
  * @param test
  */
 exports.testAckTXTransition = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_can_write("receiver", "/users/sender",
         {
             state:"ACK_TX",
@@ -510,8 +430,6 @@ exports.testAckTXTransition = function(test){
  * RECEIVER has ACK on sender's data, transaction is complete! Now each can go to the IDLE state after receiving goods
  *********************************************************************************************************************/
 exports.testACK_TX_ACK_RX_checkpoint = function(test){
-    var test_utils = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
     $.when(ACK_TX_ACK_RX_checkpoint = test_utils.checkpoint(test)).then(function(){
         test.done();
     });
@@ -522,9 +440,6 @@ exports.testACK_TX_ACK_RX_checkpoint = function(test){
  * @param test
  */
 exports.testCommitTxTransition = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_can_write("sender", "/users/sender",
         {
             state:"IDLE" //we have sent all our stuff
@@ -536,9 +451,6 @@ exports.testCommitTxTransition = function(test){
  * @param test
  */
 exports.testCommitRxTransition = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_can_write("receiver", "/users/receiver",
         {
             state:"IDLE",
@@ -556,9 +468,6 @@ exports.testCommitRxTransition = function(test){
  * @param test
  */
 exports.testTradeComplete0 = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_can_read("receiver", "/users",
         {
             sender:{
@@ -575,9 +484,6 @@ exports.testTradeComplete0 = function(test){
  * Alternative ending, lets check the trade is completed with the different users doing the final transactions
  *********************************************************************************************************************/
 exports.testRestoreAlternativeEnding1Checkpoint = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.rollback(ACK_TX_ACK_RX_checkpoint, test)).then(test.done);
 };
 
@@ -587,9 +493,6 @@ exports.testRestoreAlternativeEnding1Checkpoint = function(test){
  * @param test
  */
 exports.testCommitTxTransition1 = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_can_write("receiver", "/users/sender",
         {
             state:"IDLE" //we have sent all our stuff
@@ -602,9 +505,6 @@ exports.testCommitTxTransition1 = function(test){
  * @param test
  */
 exports.testCommitRxTransition1 = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_can_write("sender", "/users/receiver",
         {
             state:"IDLE",
@@ -617,9 +517,6 @@ exports.testCommitRxTransition1 = function(test){
  * @param test
  */
 exports.testTradeComplete1 = function(test){
-    var test_utils  = require("../test/test_utils.js");
-    var $ = require('jquery-deferred');
-
     $.when(test_utils.assert_can_read("receiver", "/users",
         {
             sender:{

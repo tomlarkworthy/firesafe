@@ -212,7 +212,8 @@ exports.new_machine = function(){
         }
 
         transition.to = properties.to.val;
-        if(transition.role){
+
+        if(properties.role){
             transition.role = properties.role.val;
         }else{
             transition.role = null;
@@ -246,7 +247,7 @@ exports.new_machine = function(){
         for(var name in types_parse_obj.val){
             machine.roles[name] = types_parse_obj.val[name].val;
         }
-        //console.log("\nmachine.types:", machine.types);
+        //console.log("\nmachine.roles:", machine.roles);
     };
 
     /**
@@ -419,14 +420,27 @@ exports.new_machine = function(){
                 clause += prefix + "\t\t)";
             }
 
+            var unlocked_variables = []; //denotes which variables do not need fixing as they are mentioned in an execute of effect clause
+
             //then add the fixings for variables
+            //from the effect clause
             for(var variable in machine.variables){
                 //look to see whether this variable was already mentioned in the effects
                 //todo: should check whether its mentioned as a POST CONDITION
                 //we have a security leak here
                 if(transition.effect!= null && transition.effect.indexOf(variable) !== -1){
                     //its mentioned in the effects, no need to lock
-                }else{
+                    unlocked_variables.push(variable);
+                }
+            }
+
+            //apply locks to variables not mentioned in execute or effects
+            for(var variable in machine.variables){
+                var unlocked = false;
+                for(var unlocked_id in unlocked_variables) {
+                    if(unlocked_variables[unlocked_id] === variable){unlocked = true;}
+                }
+                if(!unlocked){
                     clause += prefix + "\t\t&& newData.child('" + variable + "').val() == data.child('"+variable +"').val() //lock for " + variable
                 }
             }

@@ -41,7 +41,6 @@ exports.testAdminWrite = function(test){
         {"auctions":{"item1":"nothing"}}, test)).then(test.done); //todo empty actions
 };
 
-
 /**
  * You should not be able to initialize an action without being the seller
  * @param test
@@ -53,7 +52,7 @@ exports.testInitializationWrongSeller = function(test){
             seller:"joe",
             modified:firebase.ServerValue.TIMESTAMP,
             state:"SELLING",
-            signal:"sell"//todo
+            signal:"sell"
         }, test)).then(test.done);
 };
 
@@ -61,13 +60,25 @@ exports.testInitializationWrongSeller = function(test){
  * You should be able to initialize an action if the seller with the correct timestamp
  * @param test
  */
-exports.testInitialization = function(test){
+exports.testInitializationWithEffect = function(test){
     $.when(test_utils.assert_can_write("eric", "/auctions/1",
         {
             name:"car",
             seller:"eric",
             modified:firebase.ServerValue.TIMESTAMP,
             state:"SELLING",
-            signal:"sell"//todo
+            signal:"SELL"
         }, test)).then(test.done);
+};
+
+
+/*Just initialises the structure of the database
+ * database has a single table actions
+ * */
+exports.testAdminWrite = function(test){
+    $.when(test_utils.assert_admin_can_write("/",
+        {"auctions":{"item1":"nothing"}}, test)).then(test.done); //todo empty actions
+};
+
+exports.testInitializationWithExecute = function(test){
 };
