@@ -468,15 +468,20 @@ exports.new_machine = function(){
                 clause += prefix + "\t\t)";
             }
 
+            var unlocked_variables = []; //denotes which variables do not need fixing as they are mentioned in an execute of effect clause
+
             if(transition.execute != null){
                 console.log("adding exclude");
                 var execute = preprocessing.executes[name];
 
-                clause += prefix + "\t\t/*execut*/ && (" + exports.replace_prefix(execute.rules(), prefix + "\t\t\t");
+                for(var variable in execute.assignments){
+                    unlocked_variables.push(variable)
+                }
+
+                clause += prefix + "\t\t/*execut*/ && (" + prefix + "\t\t\t" + exports.replace_prefix(execute.rules(), prefix + "\t\t\t");
                 clause += prefix + "\t\t)";
             }
 
-            var unlocked_variables = []; //denotes which variables do not need fixing as they are mentioned in an execute of effect clause
 
             //then add the fixings for variables
             //from the effect clause

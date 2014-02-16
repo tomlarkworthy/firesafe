@@ -11,7 +11,7 @@
 						/*to    */ && newData.child('state').val() == 'SELLING'
 						/*signal*/ && newData.child('signal').val() == 'SELL'
 						/*effect*/ && (
-							newData.child('name').val()     != null &&   
+							newData.child('name').val()     != null &&
 							newData.child('seller').val()   == auth.username &&
 							newData.child('modified').val() == now
 						)
@@ -22,16 +22,14 @@
 						/*role  */(true)
 						/*from  */ && data.child('state').val() == null
 						/*to    */ && newData.child('state').val() == 'SELLING'
-						/*signal*/ && newData.child('signal').val() == 'sell(item_name)'
-						/*execut*/ && (newData.child('name').val() == newData.child('item_name').val() &&
+						/*signal*/ && newData.child('signal').val() == 'SELL(item_name)'
+						/*execut*/ && (
+							newData.child('name').val() == newData.child('item_name').val() &&
 							newData.child('modified').val() == now &&
 							newData.child('seller').val() == auth.username
 						)
-						&& newData.child('name').val() == data.child('name').val() //lock for name
-						&& newData.child('seller').val() == data.child('seller').val() //lock for seller
 						&& newData.child('bid').val() == data.child('bid').val() //lock for bid
 						&& newData.child('bidder').val() == data.child('bidder').val() //lock for bidder
-						&& newData.child('modified').val() == data.child('modified').val() //lock for modified
 					)
 				"
 			}

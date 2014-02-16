@@ -44,9 +44,9 @@ exports.testWriteSendXRulesValid = function(test){
 /*Just initialises the structure of the database
 * database has a single table actions
 * */
-exports.testAdminWrite = function(test){
+exports.testAdminWrite1 = function(test){
     $.when(test_utils.assert_admin_can_write("/",
-        {"auctions":{"item1":"nothing"}}, test)).then(test.done); //todo empty actions
+        {"auctions":true}, test)).then(test.done); //todo empty actions
 };
 
 /**
@@ -80,14 +80,48 @@ exports.testInitializationWithEffect = function(test){
 };
 
 
-/*Just initialises the structure of the database
- * database has a single table actions
+/*Clear database
  * */
-exports.testAdminWrite = function(test){
+exports.testAdminWrite2 = function(test){
     $.when(test_utils.assert_admin_can_write("/",
-        {"auctions":{"item1":"nothing"}}, test)).then(test.done); //todo empty actions
+        {"auctions":true}, test)).then(test.done); //todo empty actions
 };
 
+
+/**
+ * You should be not be able to call the parametrized version of Sell if you omit the parameter instantiation
+ * @param test
+ */
+exports.testInitializationFailWithExecute = function(test){
+    $.when(test_utils.assert_cant_write("eric", "/auctions/1",
+        {
+            name:"car",
+            seller:"eric",
+            modified:firebase.ServerValue.TIMESTAMP,
+            state:"SELLING",
+            signal:"SELL(item_name)"
+        }, test)).then(test.done);
+};
+
+/**
+ * You should be able to call the parametrized version of Sell if you include the parameter instantiation
+ * @param test
+ */
 exports.testInitializationWithExecute = function(test){
-    test.done()
+    $.when(test_utils.assert_can_write("eric", "/auctions/1",
+        {
+            name:"car",
+            seller:"eric",
+            modified:firebase.ServerValue.TIMESTAMP,
+            state:"SELLING",
+            signal:"SELL(item_name)",
+            item_name:"car"
+        }, test)).then(test.done);
+};
+
+/*Clear database
+ * */
+exports.testAdminWrite3 = function(test){
+    $.when(test_utils.assert_admin_can_write("/",
+        {"auctions":true}, test)).then(test.done); //todo empty actions
 };
