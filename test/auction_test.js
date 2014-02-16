@@ -15,18 +15,26 @@ exports.testWriteSendXRulesValid = function(test){
     //load rules as hsm file
     var hsm_def = fs.readFileSync("./models/auction.hsm", "utf8");
 
-    //convert into normal rules
-    var rules = converter.convert(hsm_def);
-    fs.writeFileSync("./models/auction.rules", rules);
+    try{
+        //convert into normal rules
+        $.when(converter.convert_async(hsm_def)).then(function(rules){
+            fs.writeFileSync("./models/auction.rules", rules);
 
-    $.when(firebase_io.setValidationRules(rules))
-        .then(function(){
-            test.ok(true, "these rules should have been accepted");
-            test.done();
-        },function(error){ //deferred error handler should not be called
-            test.ok(false, "these rules should not have been rejected");
-            test.done();
+            $.when(firebase_io.setValidationRules(rules))
+                .then(function(){
+                    test.ok(true, "these rules should have been accepted");
+                    test.done();
+                },function(error){ //deferred error handler should not be called
+                    test.ok(false, "these rules should not have been rejected");
+                    test.done();
+                });
         });
+    }catch(e){
+        console.log(e);
+        console.log(e.stack);
+    }
+
+
 };
 
 /**********************************************************************************************************************
@@ -81,4 +89,5 @@ exports.testAdminWrite = function(test){
 };
 
 exports.testInitializationWithExecute = function(test){
+    test.done()
 };

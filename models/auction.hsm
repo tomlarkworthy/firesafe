@@ -24,14 +24,14 @@
                 "to":"SELLING",
                 "signal":"SELL",
                 "effect":"
-                    newData.child('name').val()     != null &&   //todo, replace with newData.child('name').val() == item_name
+                    newData.child('name').val()     != null && 
                     newData.child('seller').val()   == auth.username &&
                     newData.child('modified').val() == now"
             },
             "1":{
                 "from":"null",
                 "to":"SELLING",
-                "signal":"sell(item_name)",
+                "signal":"SELL(item_name)",
                 "execute":'
                     return {
                         "name":item_name,

@@ -23,6 +23,10 @@
 						/*from  */ && data.child('state').val() == null
 						/*to    */ && newData.child('state').val() == 'SELLING'
 						/*signal*/ && newData.child('signal').val() == 'sell(item_name)'
+						/*execut*/ && (newData.child('name').val() == newData.child('item_name').val() &&
+							newData.child('modified').val() == now &&
+							newData.child('seller').val() == auth.username
+						)
 						&& newData.child('name').val() == data.child('name').val() //lock for name
 						&& newData.child('seller').val() == data.child('seller').val() //lock for seller
 						&& newData.child('bid').val() == data.child('bid').val() //lock for bid

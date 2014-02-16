@@ -2,10 +2,12 @@
  *generator that takes the hsm json language, and outputs a set of validation rules enforcing the semantics
  */
 
+var $ = require('jquery-deferred');
 
 /**
- * main method, reads at hsm block and returns a rule file (synchronous)
+ * main method, reads at hsm block and returns a rule file (synchronous, cannot do closure compiler)
  * @param hsm
+ * @depricated
  */
 exports.convert = function(hsm){
     var parser = require('./hsm_to_rules_parser.js');
@@ -27,6 +29,42 @@ exports.convert = function(hsm){
     //console.log(code);
 
     return code
+};
+
+/**
+ * main method, reads at hsm block and returns a rule file (asynchronous)
+ * preceeded by a asyncrounous preprocessing step
+ * @param hsm
+ */
+exports.convert_async = function(hsm){
+    var parser = require('./hsm_to_rules_parser.js');
+
+    //strip comments
+    hsm = hsm.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/gm, '');
+
+    try{
+        //convert into nested json structures, using grammar
+        var top_block =  parser.parser.parse(hsm, "block");
+    }catch(e){
+        console.log(e);
+        throw e;
+    }
+
+    var result = $.Deferred();
+
+    var preprocessing = {
+        executes:{}  // the compiled execute clauses
+    };
+
+    $.when.apply($, preprocess_top_block(top_block, preprocessing)).then(function(){
+        console.log("\npreprocessing", preprocessing);
+        //generate code
+        var code = exports.top_block(top_block, "\n", [], preprocessing);
+        result.resolve(code);
+    });
+
+    return result;
+
 };
 
 //helpers
@@ -58,25 +96,26 @@ exports.sortObject = function(o) {
 
 
 
+
 /**
  * top down generator root
  * @param hsm
  */
-exports.top_block = function(top_block, prefix, types){
+exports.top_block = function(top_block, prefix, types, preprocessing){
     //console.log("\n", "top_block");
     //console.log("\n", top_block);
 
     var result =
         prefix + '{' +
         prefix + '\t"rules":'+
-        exports.block(top_block['val']['rules'], prefix + "\t", types) +
+        exports.block(top_block['val']['rules'], prefix + "\t", types, preprocessing) +
         prefix + '}';
 
     return result;
 
 };
 
-exports.block = function(block, prefix, types){
+exports.block = function(block, prefix, types, preprocessing){
     //console.log("\n", "block");
     //console.log("\n", block);
     //console.log("\n", block["!type"]);
@@ -116,13 +155,13 @@ exports.block = function(block, prefix, types){
             }else if(key === ".roles"){
             }else if(key === ".types"){
             }else{
-                lines.push('"'+key +'"'+':' + exports.block(block['val'][key], prefix + "\t", types));
+                lines.push('"'+key +'"'+':' + exports.block(block['val'][key], prefix + "\t", types, preprocessing));
             }
         }
 
         if(machine){
             machine.flatten_transactions();
-            lines.push('".write"'+':' + machine.gen_write(prefix + "\t"));
+            lines.push('".write"'+':' + machine.gen_write(prefix + "\t", preprocessing));
         }
 
         return "{"+prefix + "\t" + lines.join("," + prefix + "\t") + prefix + "}";
@@ -236,6 +275,12 @@ exports.new_machine = function(){
             transition.effect = null
         }
 
+        if(properties.execute){
+            transition.execute = properties.execute.val
+        }else{
+            transition.execute = null
+        }
+
         machine.signals[transition.signal] = {};
         machine.transitions[name] = transition;
 
@@ -273,7 +318,8 @@ exports.new_machine = function(){
                     role:transition.role,
                     signal:transition.signal,
                     guard:transition.guard,
-                    effect:transition.effect
+                    effect:transition.effect,
+                    execute:transition.execute
                 };
                 uid += 1;
             }
@@ -294,7 +340,8 @@ exports.new_machine = function(){
                             role:transition.role,
                             signal:signal,
                             guard:transition.guard,
-                            effect:transition.effect
+                            effect:transition.effect,
+                            execute:transition.execute
                         };
                         uid += 1;
                     }
@@ -311,7 +358,8 @@ exports.new_machine = function(){
                         role:transition.role,
                         signal:null,
                         guard:transition.guard,
-                        effect:transition.effect
+                        effect:transition.effect,
+                        execute:transition.execute
                     };
                     uid += 1;
                 }
@@ -371,7 +419,7 @@ exports.new_machine = function(){
      * this encodes all the different transitions, and the initial condition
      * @param prefix
      */
-    machine.gen_write = function(prefix){
+    machine.gen_write = function(prefix, preprocessing){
         var clauses = [];
 
         for(var name in machine.transitions){
@@ -420,19 +468,29 @@ exports.new_machine = function(){
                 clause += prefix + "\t\t)";
             }
 
+            if(transition.execute != null){
+                console.log("adding exclude");
+                var execute = preprocessing.executes[name];
+
+                clause += prefix + "\t\t/*execut*/ && (" + exports.replace_prefix(execute.rules(), prefix + "\t\t\t");
+                clause += prefix + "\t\t)";
+            }
+
             var unlocked_variables = []; //denotes which variables do not need fixing as they are mentioned in an execute of effect clause
 
             //then add the fixings for variables
             //from the effect clause
             for(var variable in machine.variables){
                 //look to see whether this variable was already mentioned in the effects
-                //todo: should check whether its mentioned as a POST CONDITION
+                //todo: should check whether its mentioned as a POST CONDITION not just string matching
                 //we have a security leak here
                 if(transition.effect!= null && transition.effect.indexOf(variable) !== -1){
                     //its mentioned in the effects, no need to lock
                     unlocked_variables.push(variable);
                 }
             }
+
+            //from the execute clause
 
             //apply locks to variables not mentioned in execute or effects
             for(var variable in machine.variables){
@@ -456,4 +514,75 @@ exports.new_machine = function(){
 
     return machine;
 
+};
+
+
+/*******************************************
+ * PRE PROCESSING
+ *
+ ******************************************/
+
+/**
+ * first pass finds things that may take a long time (like closure compiler), so we can start the heavy lifting in parrallel
+ */
+var preprocess_top_block = function(top_block, preprocessing){
+    //console.log("\npreprocess_top_block");
+    return preprocess_block(top_block['val']['rules'], preprocessing);
+};
+
+var preprocess_block = function(block, preprocessing){
+    //console.log("\npreprocess_block");
+    var defs = [];
+    if(block["!type"] === "OBJ"){
+        if(block['val'][".transitions"]){
+            defs = defs.concat(preprocess_transitions(block['val'][".transitions"], preprocessing));
+        }
+
+        for (var key in block['val']) {
+            if(key === ".write" && machine){
+                //ignore writes when in machine mode
+                console.log("\n WARNING: .write ignored when declared in same layer as a state machine")
+            }else if(key === ".states"){
+            }else if(key === ".variables"){ //ignore all the machine special syntax
+            }else if(key === ".transitions"){
+            }else if(key === ".roles"){
+            }else if(key === ".types"){
+            }else{
+                defs = defs.concat(preprocess_block(block['val'][key], preprocessing));
+            }
+        }
+    }
+    return defs;
+};
+
+var preprocess_transitions = function(transitions_parse_obj, preprocessing){
+    //console.log("\npreprocess_transitions");
+    var defs = [];
+    //console.log("\nprocess_transitions:", transitions_parse_obj);
+    for(var name in transitions_parse_obj.val){
+        defs = defs.concat(preprocess_transition(name, transitions_parse_obj.val[name].val, preprocessing));
+    }
+
+    //console.log("\npreprocess_transitions defs", defs);
+    return defs;
+};
+
+var preprocess_transition = function(name, properties, preprocessing){
+    //console.log("\npreprocess_transition");
+    var defs = [];
+    if(properties.execute){
+        var execute_src = properties.execute.val;
+        //so we start compiling an execute clause
+        var execute_lib = require("./execute.js");
+        var execute_def = execute_lib.new_execute(properties.signal.val, execute_src);
+        //we both register the built object in a lookup when it is ready,
+        //and also add the deferred object to the big list of things we need to wait for after preprocessing
+        $.when(execute_def).then(function(execute_obj){
+            preprocessing.executes[name] = execute_obj;
+        });
+        defs.push(execute_def);
+    }
+
+    //console.log("\npreprocess_transition defs", defs);
+    return defs;
 };

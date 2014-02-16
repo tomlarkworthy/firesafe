@@ -1,0 +1,8 @@
+$["export"] = function({{#each params}} x{{@index}}, {{/each}} DUMMY){
+
+    {{#each params}}
+    {{this}} = x{{@index}};
+    {{/each}}
+
+    {{{src}}}
+}
