@@ -193,7 +193,7 @@ While it is natural to develop the protocol using two distinct state machines, i
 
 ![complete protocol](http://tomlarkworthy.github.io/firesafe/models/send_item.svg)
 
-We do not make any promises about the correctness of this protocol... yet. In particular, we are not sure whether a deadlock can exist when the sender quickly moves on to a different trade with a another user. However, verifying the protocols is a high priority for Firesafe, so sign up to our announcements if this is important to you https://groups.google.com/forum/?hl=en-GB#!forum/firesafe-announce
+This protocol has been through a static analyser and shown to be correct. Sign up to our announcements if formal verification is important to you https://groups.google.com/forum/?hl=en-GB#!forum/firesafe-announce
 
 * complete hsm source file  - https://github.com/tomlarkworthy/firesafe/blob/master/models/send_item.hsm
 * generated validation rules  - https://github.com/tomlarkworthy/firesafe/blob/master/models/send_item.rules
@@ -214,11 +214,9 @@ Note our HSMs do not map directly onto UML statecharts. In particular, UML state
 ### under development
 * Transitions with TIMESTAMP examples
 * Formal protocol verification
-* Draw.io -> .hsm converter
 
 ### on roadmap
 * .hsm -> client state machine generator
-* HSM Generics??
 
 Updates for major developments or calls for help! https://groups.google.com/forum/?hl=en-GB#!forum/firesafe-announce
 
