@@ -82,7 +82,7 @@ Each user is either IDLE, sending an item (TX) or receiving an item (RX). Furthe
 
 ![send_item_lhs_picture](http://tomlarkworthy.github.io/firesafe/doc/send_item_interaction.svg)
 
-The complete protocol is described in detail in the wiki (https://github.com/tomlarkworthy/firesafe/wiki/Send-Item).
+The complete protocol is described step-by-step in the wiki (https://github.com/tomlarkworthy/firesafe/wiki/Send-Item). The final version in diagram form is as follows:
 
 ![complete protocol](http://tomlarkworthy.github.io/firesafe/models/send_item.svg)
 
