@@ -5,7 +5,7 @@ Firesafe is a technology to enforce data integrity, and enable complex transacti
 
 Firesafe compiles hierarchical state machines (HSM) definitions into Firebase security rules. The Firesafe HSM language is expressive, and a super set of the Firebase security language. Adding consistent, concurrent and fail safe protocols to Firebase is now a whole lot simpler (e.g. cross-tree transactions).
 
-Firebase is already the future of databases, offering scalable low latency database-as-a-service. Firesafe compliments this amazing technology with an expressive syntax to get the most out of its security model. (Firesafe is not endorsed by Firebase)
+Firebase is already the future of databases, offering scalable low latency database-as-a-service. Firesafe compliments this amazing technology with an expressive syntax to get the most out of its security model. (Firesafe is not endorsed by Firebase). Development of secure protocols in Firesafe is supported by a static analyser (see https://github.com/tomlarkworthy/firesafe/wiki/Send-Item)
 
 ## Motivation
 
