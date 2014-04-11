@@ -23,7 +23,7 @@ The reason why many games are affected by the same type of bug is that a difficu
 
 Firebase *can* solve this with a **two phase commit protocol**. Classic literature on 2 phase commits state it *can* become deadlocked. However, normal deadlock issues don't arise in this case, because Firebase is a central authority, and client's states are persisted on disconnect. Unfortunately, actually writing a two phase commit protocol in Firebase security rules is actually really hard and error prone, and the 2-phase commit protocol was one motivation for creating the Firesafe abstraction of Hierarchical State Machines (HSM) in Firebase.
 
-However, while HSM will prevent silly mistakes, it still can't prevent high level protocol errors. We are currently connecting Firesafe to a theorem prover. One this is complete will we be able to **prove non-blocking properties and protocol invariants for arbitrary HSMs**. Our long term goal is to make **"provably secure, deadlock free, multi-user interactions"** simple.
+However, while HSM will prevent silly mistakes, it still can't prevent high level protocol errors. We have connected Firesafe to a theorem prover which allows **proveing non-blocking properties and protocol invariants for arbitrary HSMs**. Our long term goal is to make **"provably secure, deadlock free, multi-user interactions"** simple.
 
 
 #The HSM Language
@@ -32,7 +32,7 @@ In Firesafe we provide the Hierarchical State Machines (HSM) language. A similar
 
 The language has a very natural graphical representation. To explain the language let's start with simple examples and build up to a two phase commit protocol for secure exchange of items between players.
 
-## Example: Shop
+## Simple Example: Shop
 
 One common source of complaints and support headaches is buying items in-game. If it goes wrong players could lose currency, or, if it's exploitable, cheaters profit and devalue the currency. This is an acute problem if the currency is bought with real world money.
 
