@@ -91,7 +91,7 @@ This protocol has been through a static analyser and shown to be correct. Sign u
 * complete hsm source file  - https://github.com/tomlarkworthy/firesafe/blob/master/models/send_item.hsm
 * generated validation rules  - https://github.com/tomlarkworthy/firesafe/blob/master/models/send_item.rules
 
-#Example: Hierarchical State Machines
+# Example: Hierarchical State Machines
 
 So far the machines discussed are flat. If you have ever tried to use a finite state machine in a real world setting you might have found yourself replicating arrows until your diagram is an unmanageable mess. Finite state machines suffer from *state space explosion*. Nesting states addresses this issue by reusing transitions via an inheritance-like mechanism.
 
@@ -99,7 +99,7 @@ Miro Samek in the book *"Practical UML Statecharts for C/C++"* explains how to u
 
 Note our HSMs do not map directly onto UML statecharts. In particular, UML statecharts are deterministic, whereas Firesafe's are not. In our HSM implementation, you do not need to specify signals at all, and can therefore leave the behaviour of the state chart ambiguous. While the behaviour of firesafe is ambiguous server side, the client still has to explicitly decide which states to move into. The client logic is often not modelable by state machines. Hence, non-deterministic hierarchical state machines are a better formalism for modeling server side data integrity than the deterministic formalism. That said, much of Miro's material is applicable to Firesafe's formalism, and the *"Practical UML Statecharts for C/C++"* book is a thoroughly recommended resource (Note: we are not in any way endorsed by either Miro Samek or Quantum Leaps, LLC, we just love their software!).
 
-#Firesafe Status
+# Firesafe Status
 
 ### current
 * .hsm -> Firebase rules command line compiler complete
